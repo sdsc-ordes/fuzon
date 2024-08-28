@@ -7,6 +7,20 @@ use oxigraph::{
 };
 use skim::prelude::*;
 
+struct TermMatcher {
+    terms: Vec<Term>,
+    tx: SkimItemSender,
+    rx: SkimItemReceiver,
+}
+
+impl TermMatcher{
+
+    fn new(terms: Vec<Term>) -> Self {
+        let (tx, rx) = unbounded(); // <- this should take a vec
+        Self { terms, tx, rx }
+    }
+}
+
 struct Term {
     uri: String,
     label: String,

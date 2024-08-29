@@ -3,7 +3,7 @@
 > [!WARNING]
 > This repository is a prototype and not yet in a usable state.
 
-fuzon is a tool which lets you interactively prompt RDF graphs using a fuzzy finder [fzf](https://github.com/junegunn/fzf). Example use cases of this tool include finding instances belonging to an enumeration class in a given source ontology. It uses SPARQL queries in the back-end, ran on an in-memory graphstore like [oxigraph](https://github.com/oxigraph/oxigraph) to find the items relevant to index. This index allows for the highly performant, near real-time feedback to "auto-complete" in the terminal.
+fuzon is a tool which lets you interactively prompt RDF graphs using the [skim](https://github.com/lotabout/skim) fuzzy finder inspired by [fzf](https://github.com/junegunn/fzf)). Example use cases of this tool include finding instances belonging to an enumeration class in a given source ontology. It uses SPARQL queries in the back-end, ran on an in-memory [oxigraph](https://github.com/oxigraph/oxigraph) store to find the items relevant to index. This index allows for the highly performant, near real-time feedback to "auto-complete" in the terminal.
 
 ```shell
 >Bla    # <- user types this

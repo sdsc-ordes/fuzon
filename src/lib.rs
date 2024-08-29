@@ -11,15 +11,27 @@ use skim::prelude::*;
 
 struct TermMatcher {
     terms: Vec<Term>,
-    tx: SkimItemSender,
-    rx: SkimItemReceiver,
 }
 
 impl TermMatcher{
 
     fn new(terms: Vec<Term>) -> Self {
-        let (tx, rx) = bounded(terms.len()); // <- this should take a vec
-        Self { terms, tx, rx }
+        Self { terms }
+    }
+
+    fn match_terms(&self, query: String) {
+        let (tx, rx) = bounded(self.terms.len()); // <- this should take a vec
+        let options = SkimOptionsBuilder::default()
+            .height(Some("50%"))
+            .multi(true)
+            .preview(Some(""))
+            .build()
+            .unwrap();
+        self.terms.iter().filter(|t| t.label.contains(&query))
+            .for_each(|t| tx.send(t).unwrap());
+        drop(tx);
+        Skim::run_with(&options, Some(rx));
+            
     }
 }
 

@@ -55,7 +55,7 @@ pub fn rank_terms<'a>(query: String, terms: Vec<&'a Term>) -> Vec<(&'a Term, f64
         .map(|t| {
         (
             t, 
-            rff::match_and_score(&query, &t.to_string())
+            rff::match_and_score(&query, &t.label.to_string())
                 .and_then(|m| Some(m.1.to_owned()))
                 .unwrap_or(0.0)
         )

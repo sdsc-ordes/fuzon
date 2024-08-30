@@ -5,4 +5,4 @@ edition = "2021"
 
 [dependencies]
 oxigraph = "0.3.22"
-skim = "0.10.4"
+rff = "0.3.0"

@@ -1,5 +1,5 @@
 use core::fmt;
-use std::{io::BufRead, path::Path};
+use std::io::BufRead;
 
 use oxigraph::sparql::QueryResults;
 use oxigraph::store::Store;
@@ -7,31 +7,31 @@ use oxigraph::{
     io::GraphFormat,
     model::GraphNameRef,
 };
-use skim::prelude::*;
 
-struct TermMatcher {
+use rff;
+
+pub struct TermMatcher {
     terms: Vec<Term>,
 }
 
-impl TermMatcher{
-
-    fn new(terms: Vec<Term>) -> Self {
-        Self { terms }
+impl TermMatcher {
+    pub fn new() -> Self {
+        TermMatcher {
+            terms: Vec::new(),
+        }
     }
-
-    fn match_terms(&self, query: String) {
-        let (tx, rx) = bounded(self.terms.len()); // <- this should take a vec
-        let options = SkimOptionsBuilder::default()
-            .height(Some("50%"))
-            .multi(true)
-            .preview(Some(""))
-            .build()
-            .unwrap();
-        self.terms.iter().filter(|t| t.label.contains(&query))
-            .for_each(|t| tx.send(t).unwrap());
-        drop(tx);
-        Skim::run_with(&options, Some(rx));
-            
+    pub fn add_term(&mut self, term: Term) {
+        self.terms.push(term);
+    }
+    pub fn rank_terms(&self, query: String) -> Vec<(&Term, f64)> {
+        rank_terms(query, self.terms.iter().collect())
+    }
+    pub fn top_terms(&self, query: String, n: usize) -> Vec<&Term> {
+        self.rank_terms(query).into_iter().take(n).map(|t| t.0).collect()
+    }
+    pub fn from_readers(readers: Vec<impl BufRead>) -> Self {
+        let terms = gather_terms(readers).collect();
+        TermMatcher { terms }
     }
 }
 
@@ -47,24 +47,27 @@ impl fmt::Display for Term {
     }
 }
 
-impl SkimItem for Term {
-    fn text(&self) -> Cow<str> {
-        Cow::Borrowed(&self.label)
-    }
+/// Returns the input term vector sorted by match score (best first),
+/// along with the individual matching scores.
+pub fn rank_terms<'a>(query: String, terms: Vec<&'a Term>) -> Vec<(&'a Term, f64)>{
+    let mut ranked: Vec<(&Term, f64)> = terms
+        .into_iter()
+        .map(|t| {
+        (
+            t, 
+            rff::match_and_score(&query, &t.to_string())
+                .and_then(|m| Some(m.1.to_owned()))
+                .unwrap_or(0.0)
+        )
+    }).collect();
+    ranked.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
 
-    fn preview(&self, _context: PreviewContext) -> ItemPreview {
-        ItemPreview::Text(format!("{} ({})", self.label, self.uri))
-    }
-}
-
-pub fn filter_terms(query: String, terms: impl Iterator<Item = Term>) {
-    terms.filter(|t| t.label.contains(&query))
-        .for_each(|t| println!("{}", t));
+    return ranked
 }
 
 
 // Build in-memory kg, load all sources and query for uris and labels.
-pub fn query(readers: Vec<impl BufRead>) -> impl Iterator<Item = Term> {
+pub fn gather_terms(readers: Vec<impl BufRead>) -> impl Iterator<Item = Term> {
     let store = Store::new().unwrap();
     // NOTE: May want to use bulk loader for better performances
     for reader in readers {

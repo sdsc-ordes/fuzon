@@ -3,14 +3,8 @@
 > [!WARNING]
 > This repository is a prototype and not yet in a usable state.
 
-fuzon is a tool which lets you interactively prompt RDF graphs using the [skim](https://github.com/lotabout/skim) fuzzy finder inspired by [fzf](https://github.com/junegunn/fzf)). Example use cases of this tool include finding instances belonging to an enumeration class in a given source ontology. It uses SPARQL queries in the back-end, ran on an in-memory [oxigraph](https://github.com/oxigraph/oxigraph) store to find the items relevant to index. This index allows for the highly performant, near real-time feedback to "auto-complete" in the terminal.
+fuzon allows to search entities in rdf knowledge graphs based on their labels. It is a wrapper around the [rff](https://github.com/stewart/rff) fuzzy finder. Example use cases of this tool include finding instances belonging to an enumeration class in a given source ontology. It prefetches URI - label pairs using SPARQL queries in the back-end, ran on an in-memory [oxigraph](https://github.com/oxigraph/oxigraph) store to find the items relevant to index. This index allows for the highly performant, near real-time feedback to "auto-complete" in the terminal.
 
-```shell
->Bla    # <- user types this
-Bladder cancer (obo:xyz) <- top n hits updated on each keystroke
-Bladder infection (obo:abc)
-Bland taste (obo:lol)
-```
 
 ## installation
 
@@ -26,13 +20,27 @@ cargo build --release
 
 ### Command line interface
 
-Running fuzon with a set of RDF ontologies / terminologies will start an interactive prompt using [fzf](https://github.com/junegunn/fzf) to browse the input ontologies.
+
+
+To filter the top 3 matches in a file non-interactively:
 
 ```shell
-$ fuzon -i onto1.ttl -i onto2.ttl
+$ fuzon -q 'aspirin' --top 3 -s onto1.ttl -s onto2.ttl
 ```
 
+
+Not implemented yet: ~~Running fuzon with a set of RDF ontologies / terminologies will start an interactive prompt using [fzf](https://github.com/junegunn/fzf) to browse the input ontologies.~~
+
 ### rust crate
+```rust
+use fuzon;
+let r1 = BufReader::new(File::open("onto1.ttl")) 
+let r2 = BufReader::new(File::open("onto2.ttl"))
+// all readers combined into a single graph
+let matcher = TermMatcher::from_readers(vec![r1, r2])
+matcher.rank_terms("some query")
+```
+
 
 ### python package
 

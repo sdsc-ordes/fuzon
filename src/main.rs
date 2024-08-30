@@ -10,24 +10,29 @@ struct Args {
     /// The query to search for in the ontology.
     #[clap(short, long)]
     query: String,
-    /// List of ontology files to search. Can be a file path or a URL.
+    /// File to search. Can be a file path or a URL.
     #[clap(short, long, required = true)]
-    terminology: Vec<String>,
+    source: Vec<String>,
+
+    /// Only return the top N results.
+    #[clap(short, long)]
+    top: Option<usize>,
 }
 
 fn main() {
     let args = Args::parse();
     let mut readers = Vec::new();
-    for path in args.terminology {
+    for path in args.source {
         readers.push(BufReader::new(File::open(path).unwrap()));
     }
     
     let matcher = fuzon::TermMatcher::from_readers(readers);
-    println!("query finished");
-    let ranked = matcher.rank_terms(args.query);
-    println!("matching finished");
+    let mut results = matcher.rank_terms(args.query);
+    if let Some(n) = args.top {
+        results = results[..n].to_vec();
+    }
 
-    for (term, score) in ranked {
+    for (term, score) in results {
         println!("[{}] {}", score, term)
     }
 }

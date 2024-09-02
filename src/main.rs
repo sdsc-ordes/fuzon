@@ -2,7 +2,6 @@ use clap::Parser;
 
 use anyhow::Result;
 
-
 /// fuzzy match terms from ontologies to get their uri
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -42,5 +41,4 @@ mod tests {
     use super::*;
 
     fn match_urls() {}
-
 }

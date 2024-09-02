@@ -1,6 +1,8 @@
-use clap::Parser;
+use fuzon::ui::{interactive, search};
 
 use anyhow::Result;
+use clap::Parser;
+use fuzon::TermMatcher;
 
 /// fuzzy match terms from ontologies to get their uri
 #[derive(Parser, Debug)]
@@ -8,7 +10,7 @@ use anyhow::Result;
 struct Args {
     /// The query to search for in the ontology.
     #[clap(short, long)]
-    query: String,
+    query: Option<String>,
     /// File to search. Can be a file path or a URL.
     #[clap(short, long, required = true)]
     source: Vec<String>,
@@ -21,20 +23,23 @@ struct Args {
 fn main() -> Result<()> {
     let args = Args::parse();
 
-    let sources = args.source.iter().map(|s| s.as_str()).collect();
-    let matcher = fuzon::TermMatcher::from_paths(sources)?;
-    let mut results = matcher.rank_terms(args.query);
+    let sources = args.source
+        .iter()
+        .map(|s| s.as_str())
+        .collect();
+    let matcher = TermMatcher::from_paths(sources)?;
 
-    if let Some(top_n) = args.top {
-        let take_n = top_n.min(results.len());
-        results = results[..take_n].to_vec();
+    if let Some(query) = args.query {
+        for (term, score) in search(&matcher, &query, args.top) {
+            println!("[{}] {}", score, term)
+        }
+        return Ok(());
+    } else {
+        return interactive(&matcher, args.top);
     }
-
-    for (term, score) in results {
-        println!("[{}] {}", score, term)
-    }
-    Ok(())
 }
+
+
 
 #[cfg(test)]
 mod tests {

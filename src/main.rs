@@ -1,7 +1,6 @@
 use clap::Parser;
-use std::fs::File;
-use std::io::BufReader;
 
+use anyhow::Result;
 
 /// fuzzy match terms from ontologies to get their uri
 #[derive(Parser, Debug)]
@@ -19,14 +18,13 @@ struct Args {
     top: Option<usize>,
 }
 
-fn main() {
+fn main() -> Result<()> {
     let args = Args::parse();
-    let mut readers = Vec::new();
-    for path in args.source {
-        readers.push(BufReader::new(File::open(path).unwrap()));
-    }
-    let matcher = fuzon::TermMatcher::from_readers(readers);
+
+    let sources = args.source.iter().map(|s| s.as_str()).collect();
+    let matcher = fuzon::TermMatcher::from_paths(sources)?;
     let mut results = matcher.rank_terms(args.query);
+
     if let Some(top_n) = args.top {
         let take_n = top_n.min(results.len());
         results = results[..take_n].to_vec();
@@ -35,6 +33,7 @@ fn main() {
     for (term, score) in results {
         println!("[{}] {}", score, term)
     }
+    Ok(())
 }
 
 #[cfg(test)]
@@ -42,5 +41,4 @@ mod tests {
     use super::*;
 
     fn match_urls() {}
-
 }

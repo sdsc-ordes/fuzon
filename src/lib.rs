@@ -1,14 +1,27 @@
 use core::fmt;
 use std::io::BufRead;
+use std::collections::HashSet;
 
-use oxigraph::sparql::QueryResults;
-use oxigraph::store::Store;
-use oxigraph::{
-    io::GraphFormat,
-    model::GraphNameRef,
-};
+use lazy_static::lazy_static;
+use oxrdf::vocab::rdfs;
+use oxttl::TurtleParser;
 
 use rff;
+
+// HashMap of common annotation properties
+lazy_static! {
+    static ref ANNOTATIONS: HashSet<String> = {
+        HashSet::from_iter(vec![
+            rdfs::LABEL.to_string(),
+            "http://schema.org/name".to_string(),
+            "http://www.w3.org/2004/02/skos/core#prefLabel".to_string(),
+            "http://www.w3.org/2004/02/skos/core#altLabel".to_string(),
+            "http://xmlns.com/foaf/0.1/name".to_string(),
+            "http://purl.org/dc/elements/1.1/title".to_string(),
+            "http://xmlns.com/foaf/0.1/name".to_string(),
+        ].iter().cloned())
+    };
+}
 
 pub struct TermMatcher {
     terms: Vec<Term>,
@@ -66,31 +79,21 @@ pub fn rank_terms<'a>(query: String, terms: Vec<&'a Term>) -> Vec<(&'a Term, f64
 }
 
 
-// Build in-memory kg, load all sources and query for uris and labels.
+// Load URI-label pairs from all source.
 pub fn gather_terms(readers: Vec<impl BufRead>) -> impl Iterator<Item = Term> {
-    let store = Store::new().unwrap();
     // NOTE: May want to use bulk loader for better performances
+    let mut terms = Vec::new();
     for reader in readers {
-        store.load_graph(
-            reader,
-            GraphFormat::Turtle,
-            GraphNameRef::DefaultGraph,
-            None,
-        ).unwrap();
-    }
-    let results = store.query("
-        SELECT ?uri ?label 
-        WHERE { 
-            ?uri <http://www.w3.org/2000/01/rdf-schema#label> ?label 
-        }"
-    ).unwrap();
-    if let QueryResults::Solutions(sol) = results {
-        sol.map(|r| r.unwrap())
-            .map(|r| Term {
-                uri: r.get("uri").unwrap().to_string(),
-                label: r.get("label").unwrap().to_string(),
+        let parser = TurtleParser::new().parse_read(reader);
+        let mut out = parser
+            .map(|t| t.expect("Error parsing RDF"))
+            .filter(|t| ANNOTATIONS.contains(t.predicate.as_str()))
+            .map(|t| Term {
+                uri: t.subject.to_string(),
+                label: t.object.to_string(),
             })
-    } else {
-        panic!("Unexpected");
+            .collect();
+        terms.append(&mut out);
     }
+    terms.into_iter()
 }

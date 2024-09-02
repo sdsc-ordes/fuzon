@@ -25,11 +25,11 @@ fn main() {
     for path in args.source {
         readers.push(BufReader::new(File::open(path).unwrap()));
     }
-    
     let matcher = fuzon::TermMatcher::from_readers(readers);
     let mut results = matcher.rank_terms(args.query);
-    if let Some(n) = args.top {
-        results = results[..n].to_vec();
+    if let Some(top_n) = args.top {
+        let take_n = top_n.min(results.len());
+        results = results[..take_n].to_vec();
     }
 
     for (term, score) in results {

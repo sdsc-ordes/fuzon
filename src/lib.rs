@@ -1,10 +1,15 @@
 use core::fmt;
-use std::io::BufRead;
 use std::collections::HashSet;
+use std::io::{BufRead, BufReader, Read};
+use std::fs::File;
+use std::error::Error;
 
+use anyhow::Result;
 use lazy_static::lazy_static;
 use oxrdf::vocab::rdfs;
 use oxttl::TurtleParser;
+use reqwest::blocking::{Client, Response};
+use reqwest::Url;
 
 use rff;
 
@@ -12,7 +17,7 @@ use rff;
 lazy_static! {
     static ref ANNOTATIONS: HashSet<String> = {
         HashSet::from_iter(vec![
-            rdfs::LABEL.to_string(),
+            "http://www.w3.org/2000/01/rdf-schema#label".to_string(),
             "http://schema.org/name".to_string(),
             "http://www.w3.org/2004/02/skos/core#prefLabel".to_string(),
             "http://www.w3.org/2004/02/skos/core#altLabel".to_string(),
@@ -46,6 +51,13 @@ impl TermMatcher {
         let terms = gather_terms(readers).collect();
         TermMatcher { terms }
     }
+
+    pub fn from_paths(paths: Vec<&str>) -> Result<Self> {
+        let readers = paths.into_iter().map(|p| get_source(p).unwrap()).collect();
+        let terms: Vec<Term> = gather_terms(readers).collect();
+        Ok(TermMatcher { terms })
+    }
+
 }
 
 #[derive(Debug)]
@@ -60,6 +72,21 @@ impl fmt::Display for Term {
     }
 }
 
+
+fn get_source(path: &str) -> Result<Box<dyn BufRead>> {
+    if let Ok(url) = Url::parse(path) {
+        // Handle URL
+        let client = Client::new();
+        let response = client.get(url).send()?.error_for_status()?;
+        let reader = BufReader::new(response);
+        Ok(Box::new(reader))  // Return boxed reader for URL
+    } else {
+        // Handle file path
+        let file = File::open(path)?;
+        let reader = BufReader::new(file);
+        Ok(Box::new(reader))  // Return boxed reader for file
+    }
+}
 /// Returns the input term vector sorted by match score (best first),
 /// along with the individual matching scores.
 pub fn rank_terms<'a>(query: String, terms: Vec<&'a Term>) -> Vec<(&'a Term, f64)>{

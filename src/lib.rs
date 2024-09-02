@@ -1,10 +1,27 @@
 use core::fmt;
 use std::io::BufRead;
+use std::collections::HashSet;
 
+use lazy_static::lazy_static;
 use oxrdf::vocab::rdfs;
 use oxttl::TurtleParser;
 
 use rff;
+
+// HashMap of common annotation properties
+lazy_static! {
+    static ref ANNOTATIONS: HashSet<String> = {
+        HashSet::from_iter(vec![
+            rdfs::LABEL.to_string(),
+            "http://schema.org/name".to_string(),
+            "http://www.w3.org/2004/02/skos/core#prefLabel".to_string(),
+            "http://www.w3.org/2004/02/skos/core#altLabel".to_string(),
+            "http://xmlns.com/foaf/0.1/name".to_string(),
+            "http://purl.org/dc/elements/1.1/title".to_string(),
+            "http://xmlns.com/foaf/0.1/name".to_string(),
+        ].iter().cloned())
+    };
+}
 
 pub struct TermMatcher {
     terms: Vec<Term>,
@@ -70,11 +87,12 @@ pub fn gather_terms(readers: Vec<impl BufRead>) -> impl Iterator<Item = Term> {
         let parser = TurtleParser::new().parse_read(reader);
         let mut out = parser
             .map(|t| t.expect("Error parsing RDF"))
-            .filter(|t| t.predicate.as_str() == rdfs::LABEL.as_str())
+            .filter(|t| ANNOTATIONS.contains(t.predicate.as_str()))
             .map(|t| Term {
                 uri: t.subject.to_string(),
                 label: t.object.to_string(),
-            }).collect();
+            })
+            .collect();
         terms.append(&mut out);
     }
     terms.into_iter()

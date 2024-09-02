@@ -11,6 +11,8 @@ use reqwest::Url;
 
 use rff;
 
+pub mod ui;
+
 // HashMap of common annotation properties
 lazy_static! {
     static ref ANNOTATIONS: HashSet<String> = {
@@ -31,7 +33,7 @@ lazy_static! {
 }
 
 pub struct TermMatcher {
-    terms: Vec<Term>,
+    pub terms: Vec<Term>,
 }
 
 impl TermMatcher {
@@ -41,10 +43,10 @@ impl TermMatcher {
     pub fn add_term(&mut self, term: Term) {
         self.terms.push(term);
     }
-    pub fn rank_terms(&self, query: String) -> Vec<(&Term, f64)> {
+    pub fn rank_terms(&self, query: &str) -> Vec<(&Term, f64)> {
         rank_terms(query, self.terms.iter().collect())
     }
-    pub fn top_terms(&self, query: String, n: usize) -> Vec<&Term> {
+    pub fn top_terms(&self, query: &str, n: usize) -> Vec<&Term> {
         self.rank_terms(query)
             .into_iter()
             .take(n)
@@ -65,8 +67,8 @@ impl TermMatcher {
 
 #[derive(Debug)]
 pub struct Term {
-    uri: String,
-    label: String,
+    pub uri: String,
+    pub label: String,
 }
 
 impl fmt::Display for Term {
@@ -91,13 +93,13 @@ fn get_source(path: &str) -> Result<Box<dyn BufRead>> {
 }
 /// Returns the input term vector sorted by match score (best first),
 /// along with the individual matching scores.
-pub fn rank_terms<'a>(query: String, terms: Vec<&'a Term>) -> Vec<(&'a Term, f64)> {
+pub fn rank_terms<'a>(query: &str, terms: Vec<&'a Term>) -> Vec<(&'a Term, f64)> {
     let mut ranked: Vec<(&Term, f64)> = terms
         .into_iter()
         .map(|t| {
             (
                 t,
-                rff::match_and_score(&query, &t.label.to_string())
+                rff::match_and_score(query, &t.label.to_string())
                     .and_then(|m| Some(m.1.to_owned()))
                     .unwrap_or(0.0),
             )

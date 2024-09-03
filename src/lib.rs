@@ -1,3 +1,4 @@
+use pyo3::prelude::*;
 use core::fmt;
 use std::collections::HashSet;
 use std::fs::File;
@@ -10,6 +11,7 @@ use reqwest::blocking::Client;
 use reqwest::Url;
 
 use rff;
+
 
 pub mod ui;
 
@@ -65,7 +67,8 @@ impl TermMatcher {
     }
 }
 
-#[derive(Debug)]
+#[pyclass(frozen)]
+#[derive(Debug, Clone)]
 pub struct Term {
     pub uri: String,
     pub label: String,
@@ -127,4 +130,24 @@ pub fn gather_terms(readers: Vec<impl BufRead>) -> impl Iterator<Item = Term> {
         terms.append(&mut out);
     }
     terms.into_iter()
+}
+
+#[pyfunction]
+pub fn score_terms(query: String, terms: Vec<Term>) -> PyResult<Vec<f64>> {
+    let mut scores: Vec<f64> = terms
+        .into_iter()
+        .map(|t| {
+            rff::match_and_score(&query, &t.label.to_string())
+                .and_then(|m| Some(m.1.to_owned()))
+                .unwrap_or(0.0)
+        })
+        .collect();
+    scores.sort_by(|a, b| b.partial_cmp(&a).unwrap());
+
+    return Ok(scores);
+}
+
+#[pymodule]
+fn fuzon(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(score_terms, m)?)
 }

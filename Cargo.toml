@@ -6,8 +6,10 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.86"
 clap = { version = "4.5.16", features = ["derive"] }
+crossterm = "0.28.1"
 lazy_static = "1.5.0"
 oxrdf = "0.1.7"
 oxttl = "0.1.0-rc.1"
+ratatui = "0.28.1"
 reqwest = { version = "0.12.7", features = ["blocking"] }
 rff = "0.3.0"

@@ -17,4 +17,4 @@ class TermMatcher:
         return [self.terms[rank] for rank in ranks]
 
     def score(self, query: str) -> list[float]:
-        return score_terms(self.terms, query)
+        return score_terms(query, self.terms)

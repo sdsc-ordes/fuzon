@@ -74,6 +74,23 @@ pub struct Term {
     pub label: String,
 }
 
+#[pymethods]
+impl Term {
+    #[new]
+    pub fn new(uri: String, label: String) -> Self {
+        Term { uri, label }
+    }
+
+    pub fn __str__(&self) -> String {
+        format!("{} ({})", self.label, self.uri)
+    }
+
+    pub fn __repr__(&self) -> String {
+        format!("{} ({})", self.label, self.uri)
+    }
+
+}
+
 impl fmt::Display for Term {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{} ({})", self.label, self.uri)
@@ -149,5 +166,7 @@ pub fn score_terms(query: String, terms: Vec<Term>) -> PyResult<Vec<f64>> {
 
 #[pymodule]
 fn fuzon(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(score_terms, m)?)
+    m.add_function(wrap_pyfunction!(score_terms, m)?)?;
+    m.add_class::<Term>()?;
+    Ok(())
 }

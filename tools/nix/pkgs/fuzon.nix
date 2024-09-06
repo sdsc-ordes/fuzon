@@ -10,12 +10,12 @@
     rustc = rustToolchain;
   };
 
-  cargoFile = /. + rootDir + "fuzon/Cargo.toml";
-  lockFile = /. + rootDir + "fuzon/Cargo.lock";
+  cargoFile = /. + rootDir + "/fuzon/Cargo.toml";
+  lockFile = /. + rootDir + "/fuzon/Cargo.lock";
 in
   rustPlatform.buildRustPackage {
     name = "fuzon";
-    src = /. + rootDir + "fuzon/";
+    src = /. + rootDir;
 
     version = (lib.importTOML cargoFile).package.version;
 

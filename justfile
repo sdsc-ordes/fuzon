@@ -13,9 +13,15 @@ build *args:
     --release \
     {{args}}
 
-# development environment
-py-develop *args:
+# install editable python package
+maturin-dev *args:
   maturin develop \
   --manifest-path pyfuzon/Cargo.toml \
   --uv \
   {{args}}
+
+nix-develop *args:
+  cd {{root}} && \
+  cmd=("$@") && \
+  { [ -n "${cmd:-}" ] || cmd=("zsh"); } && \
+  nix develop ./tools/nix#default --command "${cmd[@]}"

@@ -112,24 +112,13 @@
                 ++ benchInputs;
             };
 
-            ci = mkShell {
-              inherit buildInputs;
-              nativeBuildInputs = nativeBuildInputsBasic ++ nativeBuildInputsDev;
-
-              # Due to some weird handling of TMPDIR inside containers:
-              # https://github.com/NixOS/nix/issues/8355
-              # We have to reset the TMPDIR to make `nix build` work inside
-              # a development shell.
-              # Without `nix develop` it works.
-              shellHook = "unset TMPDIR";
-            };
           };
 
           packages = {
             fuzon = fuzon;
 
             images = {
-              ci = (import ./images/ci.nix) {
+              dev = (import ./images/dev.nix) {
                 inherit pkgs;
                 devShellDrv = devShells.default;
               };

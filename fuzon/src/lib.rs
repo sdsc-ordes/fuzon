@@ -11,6 +11,7 @@ use reqwest::Url;
 
 use rff;
 
+
 pub mod ui;
 
 // HashMap of common annotation properties
@@ -65,7 +66,7 @@ impl TermMatcher {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Term {
     pub uri: String,
     pub label: String,
@@ -77,7 +78,7 @@ impl fmt::Display for Term {
     }
 }
 
-fn get_source(path: &str) -> Result<Box<dyn BufRead>> {
+pub fn get_source(path: &str) -> Result<Box<dyn BufRead>> {
     if let Ok(url) = Url::parse(path) {
         // Handle URL
         let client = Client::new();
@@ -128,3 +129,4 @@ pub fn gather_terms(readers: Vec<impl BufRead>) -> impl Iterator<Item = Term> {
     }
     terms.into_iter()
 }
+

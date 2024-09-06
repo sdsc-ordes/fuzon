@@ -14,6 +14,6 @@ dir="build/package"
 
 print_info "Building the package."
 nix --version
-nix build -L "./tools/nix#tripsu" \
+nix build -L "./tools/nix#fuzon" \
     --out-link "$dir" \
     "$@"

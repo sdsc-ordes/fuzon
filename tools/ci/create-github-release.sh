@@ -18,7 +18,7 @@ function main() {
 
     gh release create "$tag" \
         --repo="$repo" \
-        --title="tripsu: $version" \
+        --title="fuzon: $version" \
         --generate-notes
 
     print_info "Successfully created release. All done."

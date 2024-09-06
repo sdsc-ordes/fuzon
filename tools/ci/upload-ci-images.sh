@@ -28,7 +28,7 @@ function build_ci_image() {
 }
 
 tag="${1:-1.0.0}"
-repository="${2:-ghcr.io/sdsc-ordes/tripsu}"
+repository="${2:-ghcr.io/sdsc-ordes/fuzon}"
 container_file="$DIR/images/Containerfile"
 
 if [ "${CI:-}" = "true" ]; then

@@ -43,7 +43,7 @@
   }: let
     # This is string (without toString it would be a `path` which is put into the store)
     rootDir = toString ./. + "../../..";
-    python = pkgs.python312;
+    python = nixpkgs.python312;
   in
     flake-utils.lib.eachDefaultSystem
     # Creates an attribute map `{ devShells.<system>.default = ...}`
@@ -93,7 +93,7 @@
         buildInputs = [];
 
         # The package of this CLI tool.
-        # The global version for tripsu.
+        # The global version for fuzon.
         # This is gonna get tooled later.
         fuzon = (import ./pkgs/fuzon.nix) {
           inherit rootDir rustToolchain pkgs lib;
@@ -126,7 +126,7 @@
           };
 
           packages = {
-            tripsu = fuzon;
+            fuzon = fuzon;
 
             images = {
               ci = (import ./images/ci.nix) {

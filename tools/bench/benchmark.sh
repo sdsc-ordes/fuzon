@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Benchmark runtime and memory usage of tripsu
+# Benchmark runtime and memory usage of fuzon
 # Compares the working directory version against a baseline branch (main by default)
 
 set -euo pipefail
@@ -26,52 +26,29 @@ BASE_URL="$(git config --get remote.origin.url)"
     && cd "${BASE_DIR}" \
     && just build "${BUILD_ARGS[@]}"
 )
-BASE_BIN="${BASE_DIR}/target/${PROFILE}/tripsu"
+BASE_BIN="${BASE_DIR}/target/${PROFILE}/fuzon"
 
 # current binary
 COMP_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 just build "${BUILD_ARGS[@]}"
-COMP_BIN="./target/${PROFILE}/tripsu"
+COMP_BIN="./target/${PROFILE}/fuzon"
 
 # setup data
 DATA_URL="https://ftp.uniprot.org/pub/databases/uniprot/current_release/rdf/proteomes.rdf.xz"
-INPUT="/tmp/proteomes.nt"
+INPUT="/tmp/proteomes.ttl"
 
 # Download data if needed
 if [ ! -f ${INPUT} ]; then
     curl "${DATA_URL}" \
     | xz -dc -  \
-    | rdfpipe-rs -i rdf-xml -o nt - \
+    | rdfpipe-rs -i rdf-xml -o ttl - \
     > "${INPUT}" || rm "${INPUT}"
 fi
 
-# setup config
-RULES=$(mktemp)
-BASE_IDX=$(mktemp)
-COMP_IDX=$(mktemp)
-
-cat << EOF > "${RULES}"
-
-nodes:
-  of_type:
-    - "http://purl.uniprot.org/core/Proteome"
-    - "http://purl.uniprot.org/core/Strain"
-
-objects:
-  on_type_predicate:
-    "http://purl.uniprot.org/core/Submission_Citation":
-      - "http://purl.uniprot.org/core/author"
-  
-  on_predicate:
-    - "http://purl.org/dc/terms/identifier"
-
-EOF
-
 ### Commands to benchmark
-BASE_CMD_IDX="${BASE_BIN} index -o ${BASE_IDX} ${INPUT}"
-COMP_CMD_IDX="${COMP_BIN} index -o ${COMP_IDX} ${INPUT}"
-BASE_CMD_PSD="${BASE_BIN} pseudo -r ${RULES} -x ${BASE_IDX} ${INPUT}"
-COMP_CMD_PSD="${COMP_BIN} pseudo -r ${RULES} -x ${COMP_IDX} ${INPUT}"
+QUERY="tein"
+BASE_CMD="${BASE_BIN} index -t100 -q ${QUERY} -s ${INPUT}"
+COMP_CMD="${COMP_BIN} index -t100 -q ${QUERY} -s ${INPUT}"
 
 ### functions for profiling
 
@@ -99,14 +76,12 @@ mem_prof() {
 }
 
 make_report() {
-    local cpu_index=$1
-    local cpu_pseudo=$2
-    local mem_index=$3
-    local mem_pseudo=$4
-    local base_branch=$5
+    local cpu=$1
+    local mem=$2
+    local base_branch=$3
 
     cat <<-MD
-	# tripsu profiling
+	# fuzon profiling
 
 	> date: $(date -u +%Y-%m-%d)
 
@@ -116,25 +91,14 @@ make_report() {
 	
 	Run time compared using hyperfine
 	
-	### Indexing
-	
-	$(cat "${cpu_index}")
-	
-	### Pseudonymization
-	
-	$(cat "${cpu_pseudo}")
+	$(cat "${cpu}")
 	
 	## Memory
 	
 	Heap memory usage compared using heaptrack
 	
-	### Indexing
+	$(cat "${mem}")
 	
-	$(cat "${mem_index}")
-	
-	### Pseudonymization
-	
-	$(cat "${mem_pseudo}")
 	MD
 }
 
@@ -142,30 +106,17 @@ make_report() {
 ###  Run profiling
 
 ## Profile cpu time
-HYPF_IDX_OUT=$(mktemp)
-HYPF_PSD_OUT=$(mktemp)
+HYPF_OUT=$(mktemp)
 
-# indexing
-cpu_prof "${BASE_BRANCH}" "${BASE_CMD_IDX}" \
-         "${COMP_BRANCH}" "${COMP_CMD_IDX}" "${HYPF_IDX_OUT}"
-# pseudonymization
-cpu_prof "${BASE_BRANCH}" "${BASE_CMD_IDX}" \
-         "${COMP_BRANCH}" "${COMP_CMD_IDX}" "${HYPF_PSD_OUT}"
+cpu_prof "${BASE_BRANCH}" "${BASE_CMD}" \
+         "${COMP_BRANCH}" "${COMP_CMD}" "${HYPF_OUT}"
 
 ## Profile memory
-HEAP_IDX_OUT=$(mktemp)
-HEAP_PSD_OUT=$(mktemp)
+HEAP_OUT=$(mktemp)
 
-# indexing
-mem_prof "${BASE_BRANCH}" "${BASE_CMD_IDX}" >  "${HEAP_IDX_OUT}"
-mem_prof "${COMP_BRANCH}" "${COMP_CMD_IDX}" >> "${HEAP_IDX_OUT}"
-# pseudonymization
-mem_prof "${BASE_BRANCH}" "${BASE_CMD_PSD}" >  "${HEAP_PSD_OUT}"
-mem_prof "${COMP_BRANCH}" "${COMP_CMD_PSD}" >> "${HEAP_PSD_OUT}"
+mem_prof "${BASE_BRANCH}" "${BASE_CMD}" >  "${HEAP_OUT}"
+mem_prof "${COMP_BRANCH}" "${COMP_CMD}" >> "${HEAP_OUT}"
 
 
 ### Reporting
-make_report \
-    "${HYPF_IDX_OUT}" "${HYPF_PSD_OUT}" \
-    "${HEAP_IDX_OUT}" "${HEAP_PSD_OUT}" \
-    "${BASE_BRANCH}" > "${OUTPUT}"
+make_report "${HYPF_OUT}" "${HEAP_OUT}" "${BASE_BRANCH}" > "${OUTPUT}"

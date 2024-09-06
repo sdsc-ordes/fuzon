@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 from dataclasses import dataclass
+=======
+from typing import Self
+from dataclasses import dataclass
+
+>>>>>>> feat/python-bindings
 from pyfuzon import Term, score_terms, parse_files
 
 
@@ -21,7 +27,7 @@ class TermMatcher:
         return score_terms(query, self.terms)
 
     @classmethod
-    def from_files(cls, paths: list[str]):
+    def from_files(cls, paths: list[str]) -> Self:
         terms = parse_files(paths)
-        return TermMatcher(terms)
+        return cls(terms)
 

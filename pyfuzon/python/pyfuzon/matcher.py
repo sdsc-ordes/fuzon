@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from fuzon import Term, score_terms
+from pyfuzon import Term, score_terms, parse_files
+
 
 @dataclass
 class TermMatcher:
@@ -18,3 +19,9 @@ class TermMatcher:
 
     def score(self, query: str) -> list[float]:
         return score_terms(query, self.terms)
+
+    @classmethod
+    def from_files(cls, paths: list[str]):
+        terms = parse_files(paths)
+        return TermMatcher(terms)
+

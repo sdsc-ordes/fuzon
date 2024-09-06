@@ -1,4 +1,3 @@
-use pyo3::prelude::*;
 use core::fmt;
 use std::collections::HashSet;
 use std::fs::File;
@@ -67,28 +66,10 @@ impl TermMatcher {
     }
 }
 
-#[pyclass(frozen)]
 #[derive(Debug, Clone)]
 pub struct Term {
     pub uri: String,
     pub label: String,
-}
-
-#[pymethods]
-impl Term {
-    #[new]
-    pub fn new(uri: String, label: String) -> Self {
-        Term { uri, label }
-    }
-
-    pub fn __str__(&self) -> String {
-        format!("{} ({})", self.label, self.uri)
-    }
-
-    pub fn __repr__(&self) -> String {
-        format!("{} ({})", self.label, self.uri)
-    }
-
 }
 
 impl fmt::Display for Term {
@@ -97,7 +78,7 @@ impl fmt::Display for Term {
     }
 }
 
-fn get_source(path: &str) -> Result<Box<dyn BufRead>> {
+pub fn get_source(path: &str) -> Result<Box<dyn BufRead>> {
     if let Ok(url) = Url::parse(path) {
         // Handle URL
         let client = Client::new();
@@ -149,24 +130,3 @@ pub fn gather_terms(readers: Vec<impl BufRead>) -> impl Iterator<Item = Term> {
     terms.into_iter()
 }
 
-#[pyfunction]
-pub fn score_terms(query: String, terms: Vec<Term>) -> PyResult<Vec<f64>> {
-    let mut scores: Vec<f64> = terms
-        .into_iter()
-        .map(|t| {
-            rff::match_and_score(&query, &t.label.to_string())
-                .and_then(|m| Some(m.1.to_owned()))
-                .unwrap_or(0.0)
-        })
-        .collect();
-    scores.sort_by(|a, b| b.partial_cmp(&a).unwrap());
-
-    return Ok(scores);
-}
-
-#[pymodule]
-fn fuzon(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(score_terms, m)?)?;
-    m.add_class::<Term>()?;
-    Ok(())
-}

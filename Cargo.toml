@@ -1,20 +1,11 @@
-[package]
-name = "fuzon"
-version = "0.1.0"
+[workspace]
+resolver = "2"
+
+members = [
+    "fuzon",
+    "pyfuzon",
+]
+
+[workspace.package]
+license = "Apache-2.0"
 edition = "2021"
-
-[lib]
-name = "fuzon"
-crate-type = ["cdylib"]
-
-[dependencies]
-anyhow = "1.0.86"
-clap = { version = "4.5.16", features = ["derive"] }
-crossterm = "0.28.1"
-lazy_static = "1.5.0"
-oxrdf = "0.1.7"
-oxttl = "0.1.0-rc.1"
-pyo3 = { version = "0.22.2", features = ["abi3-py310"] }
-ratatui = "0.28.1"
-reqwest = { version = "0.12.7", default-features = false, features = ["blocking"] }
-rff = "0.3.0"

@@ -18,9 +18,7 @@ cargo build --release
 
 ## usage
 
-### Command line interface
-
-
+### command line interface
 
 To filter the top 3 matches in a file non-interactively:
 
@@ -40,7 +38,6 @@ let matcher = TermMatcher::from_readers(vec![r1, r2])
 matcher.rank_terms("some query")
 ```
 
-
 ### python package
 
 ```python
@@ -51,4 +48,13 @@ matcher.terms #accesses the list of terms loaded from input files
 matcher.score("query") # returns the match score of each term for the input query.
 matcher.rank("query") # returns the list of terms sorted by similarity with the query.
 matcher.top("query", 5) # shows top 5 most similar results (sorted).
+```
+
+## development
+
+A nix dev shell with all build dependencies is provided.
+Assuming just and nix are installed on the machine, you can enter the shell with:
+
+```shell
+just nix-develop
 ```

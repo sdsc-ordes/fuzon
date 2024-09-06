@@ -28,10 +28,9 @@ To filter the top 3 matches in a file non-interactively:
 $ fuzon -q 'aspirin' --top 3 -s onto1.ttl -s onto2.ttl
 ```
 
+Running fuzon without a query will start an interactive prompt to browse the input ontologies.
 
-Not implemented yet: ~~Running fuzon with a set of RDF ontologies / terminologies will start an interactive prompt using [fzf](https://github.com/junegunn/fzf) to browse the input ontologies.~~
-
-### rust crate
+### rust library
 ```rust
 use fuzon;
 let r1 = BufReader::new(File::open("onto1.ttl")) 
@@ -44,3 +43,12 @@ matcher.rank_terms("some query")
 
 ### python package
 
+```python
+from pyfuzon.matcher import TermMatcher
+
+matcher = TermMatcher.from_files("https://example.org/onto1.ttl", "/data/onto2.ttl")
+matcher.terms #accesses the list of terms loaded from input files
+matcher.score("query") # returns the match score of each term for the input query.
+matcher.rank("query") # returns the list of terms sorted by similarity with the query.
+matcher.top("query", 5) # shows top 5 most similar results (sorted).
+```

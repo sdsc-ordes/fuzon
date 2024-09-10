@@ -44,10 +44,10 @@ develop-docker:
 
 # build images
 docker-build:
-  nix build -L "./tools/nix#image.dev" --out-link "target/image.dev" \
-    && docker load < "build/image.dev"
-  nix build -L "./tools/nix#image.fuzon" --out-link "target/image.fuzon" \
-    && docker load < "build/image.fuzon"
+  nix build -L "./tools/nix#images.dev" --out-link "target/image.dev" \
+    && docker load < "target/image.dev"
+  nix build -L "./tools/nix#images.fuzon" --out-link "target/image.fuzon" \
+    && docker load < "target/image.fuzon"
 
 # push images
 docker-push: docker-build

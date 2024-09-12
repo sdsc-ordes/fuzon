@@ -36,25 +36,23 @@
   };
 
   outputs = {
+    self,
     nixpkgs,
     flake-utils,
     rust-overlay,
     ...
-  }: let
-    # This is string (without toString it would be a `path` which is put into the store)
-    rootDir = toString ./. + "../../..";
-    python = nixpkgs.python312;
-  in
+  }:
     flake-utils.lib.eachDefaultSystem
     # Creates an attribute map `{ devShells.<system>.default = ...}`
     # by calling this function:
     (
       system: let
+        rootSrc = ./../..;
+
         overlays = [(import rust-overlay)];
 
         # Import nixpkgs and load it into pkgs.
         # Overlay the rust toolchain
-        lib = nixpkgs.lib;
         pkgs = import nixpkgs {
           inherit system overlays;
         };
@@ -63,7 +61,7 @@
         rustToolchain = pkgs.pkgsBuildHost.rust-bin.fromRustupToolchainFile ../../rust-toolchain.toml;
 
         # Things needed only at compile-time.
-        nativeBuildInputsBasic = with pkgs; [
+        basic-deps = with pkgs; [
           maturin
           findutils
           coreutils
@@ -75,59 +73,55 @@
         ];
 
         # Things needed only at compile-time.
-        nativeBuildInputsDev = with pkgs; [
+        general-deps = [
           rustToolchain
-          cargo-watch
-          just
+          pkgs.cargo-watch
+          pkgs.just
 
-          skopeo
-          dasel
+          pkgs.skopeo
+          pkgs.dasel
+          pkgs.python313
         ];
 
-        benchInputs = with pkgs; [
+        benchmark-deps = with pkgs; [
           hyperfine
           heaptrack
         ];
 
-        # Things needed at runtime.
-        buildInputs = [];
-
         # The package of this CLI tool.
         # The global version for fuzon.
         # This is gonna get tooled later.
-        fuzon = (import ./pkgs/fuzon.nix) {
-          inherit rootDir rustToolchain pkgs lib;
+        fuzon = pkgs.callPackage ./pkgs/fuzon {
+          inherit rootSrc;
+          inherit rustToolchain;
         };
-      in
-        with pkgs; rec {
-          devShells = {
-            default = mkShell {
-              inherit buildInputs;
-              nativeBuildInputs = nativeBuildInputsBasic ++ nativeBuildInputsDev;
-            };
-            bench = mkShell {
-              inherit buildInputs;
-              nativeBuildInputs = nativeBuildInputsBasic 
-                ++ nativeBuildInputsDev
-                ++ benchInputs;
-            };
-
+      in rec {
+        devShells = {
+          default = pkgs.mkShell {
+            packages = basic-deps ++ general-deps;
           };
+          bench = pkgs.mkShell {
+            packages =
+              basic-deps
+              ++ general-deps
+              ++ benchmark-deps;
+          };
+        };
 
-          packages = {
-            fuzon = fuzon;
+        packages = {
+          fuzon = fuzon;
 
-            images = {
-              dev = (import ./images/dev.nix) {
-                inherit pkgs;
-                devShellDrv = devShells.default;
-              };
+          images = {
+            dev = (import ./images/dev.nix) {
+              inherit pkgs;
+              devShellDrv = devShells.default;
+            };
 
-              fuzon = (import ./images/fuzon.nix) {
-                inherit pkgs fuzon;
-              };
+            fuzon = (import ./images/fuzon.nix) {
+              inherit pkgs fuzon;
             };
           };
-        }
+        };
+      }
     );
 }

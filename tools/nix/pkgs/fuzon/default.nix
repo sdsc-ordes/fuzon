@@ -1,8 +1,9 @@
 {
-  self,
+  rootSrc,
   lib,
   makeRustPlatform,
   rustToolchain,
+  python313,
 }: let
   rustPlatform = makeRustPlatform {
     cargo = rustToolchain;
@@ -10,29 +11,31 @@
   };
 
   fs = lib.fileset;
-  rootDir = ../../../..;
-
-  cargoFile = "${rootDir}/fuzon/Cargo.toml";
-  lockFile = "${rootDir}/Cargo.lock";
+  cargoFile = "${rootSrc}/fuzon/Cargo.toml";
+  lockFile = "${rootSrc}/Cargo.lock";
 in
-  rustPlatform.buildRustPackage {
-    name = "fuzon";
+  (rustPlatform.buildRustPackage
+    {
+      name = "fuzon";
 
-    src = fs.toSource {
-      root = rootDir;
-      fileset = fs.gitTracked rootDir;
-    };
+      src = fs.toSource {
+        root = rootSrc;
+        fileset = fs.gitTracked rootSrc;
+      };
 
-    version = (lib.importTOML cargoFile).package.version;
+      version = (lib.importTOML cargoFile).package.version;
 
-    cargoLock = {
-      inherit lockFile;
-    };
+      cargoLock = {
+        inherit lockFile;
+      };
 
-    meta = {
-      description = "A CLI tool to fuzzy search ontology terms by their labels.";
-      homepage = "https://github.com/sdsc-ordes/fuzon";
-      license = lib.licenses.asl20;
-      maintainers = ["gabyx" "cmdoret"];
-    };
-  }
+      meta = {
+        description = "A CLI tool to fuzzy search ontology terms by their labels.";
+        homepage = "https://github.com/sdsc-ordes/fuzon";
+        license = lib.licenses.asl20;
+        maintainers = ["gabyx" "cmdoret"];
+      };
+    })
+  .overrideAttrs (finalAttrs: prevAttrs: {
+    buildInputs = prevAttrs.buildInputs ++ [python313];
+  })

@@ -47,6 +47,8 @@
     # by calling this function:
     (
       system: let
+        rootSrc = ./../..;
+
         overlays = [(import rust-overlay)];
 
         # Import nixpkgs and load it into pkgs.
@@ -78,6 +80,7 @@
 
           pkgs.skopeo
           pkgs.dasel
+          pkgs.python313
         ];
 
         benchmark-deps = with pkgs; [
@@ -89,7 +92,7 @@
         # The global version for fuzon.
         # This is gonna get tooled later.
         fuzon = pkgs.callPackage ./pkgs/fuzon {
-          inherit self;
+          inherit rootSrc;
           inherit rustToolchain;
         };
       in rec {

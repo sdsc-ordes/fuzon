@@ -37,5 +37,5 @@ in
       };
     })
   .overrideAttrs (finalAttrs: prevAttrs: {
-    buildInputs = prevAttrs.buildInputs ++ [python313];
+    nativeBuildInputs = prevAttrs.nativeBuildInputs ++ [python313];
   })

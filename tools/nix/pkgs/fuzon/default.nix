@@ -1,21 +1,27 @@
 {
-  pkgs,
+  self,
   lib,
+  makeRustPlatform,
   rustToolchain,
-  rootDir,
-  ...
 }: let
-  rustPlatform = pkgs.makeRustPlatform {
+  rustPlatform = makeRustPlatform {
     cargo = rustToolchain;
     rustc = rustToolchain;
   };
 
-  cargoFile = /. + rootDir + "/fuzon/Cargo.toml";
-  lockFile = /. + rootDir + "/fuzon/Cargo.lock";
+  fs = lib.fileset;
+  rootDir = ../../../..;
+
+  cargoFile = "${rootDir}/fuzon/Cargo.toml";
+  lockFile = "${rootDir}/Cargo.lock";
 in
   rustPlatform.buildRustPackage {
     name = "fuzon";
-    src = /. + rootDir;
+
+    src = fs.toSource {
+      root = rootDir;
+      fileset = fs.gitTracked rootDir;
+    };
 
     version = (lib.importTOML cargoFile).package.version;
 

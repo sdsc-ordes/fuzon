@@ -41,7 +41,7 @@ develop-docker:
     --user 1000:1000 \
     -it \
     -w "/build/workspace" \
-    --mount type=bind,source="$(pwd)",target=/build/work \
+    --mount type=bind,source="$(pwd)",target=/build/workspace \
     {{image}}:dev
 
 ## Maintenance

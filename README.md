@@ -56,5 +56,26 @@ A nix dev shell with all build dependencies is provided.
 Assuming just and nix are installed on the machine, you can enter the shell with:
 
 ```shell
-just nix-develop
+just develop-nix
 ```
+
+Alternatively, docker can be used as a development shell:
+
+```shell
+just develop-docker
+```
+
+Once inside a development shell, the python+rust packages can be built with:
+
+```shell
+just build
+```
+
+Or the python bindings can be installed in editable mode using:
+
+```shell
+just maturin-dev
+# pyfuzon now available in python shells
+```
+
+

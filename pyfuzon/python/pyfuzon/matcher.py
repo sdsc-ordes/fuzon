@@ -1,10 +1,7 @@
-<<<<<<< HEAD
 from dataclasses import dataclass
-=======
 from typing import Self
 from dataclasses import dataclass
 
->>>>>>> feat/python-bindings
 from pyfuzon import Term, score_terms, parse_files
 
 

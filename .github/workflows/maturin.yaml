@@ -41,12 +41,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
-      - name: Install openssl
-        run: sudo apt-get update && sudo apt-get install -y libssl-dev pkg-config
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
+          before-script-linux: sudo apt-get update && sudo apt-get install -y libssl-dev pkg-config
           args: --release --out dist --manifest-path pyfuzon/Cargo.toml
           sccache: 'true'
           manylinux: auto
@@ -74,12 +73,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
-      - name: Install openssl
-        run: sudo apt-get update && sudo apt-get install -y libssl-dev pkg-config
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
+          before-script-linux: sudo apt-get update && sudo apt-get install -y libssl-dev pkg-config
           args: --release --out dist --manifest-path pyfuzon/Cargo.toml
           sccache: 'true'
           manylinux: musllinux_1_2

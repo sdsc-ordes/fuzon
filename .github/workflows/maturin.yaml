@@ -47,6 +47,7 @@ jobs:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --manifest-path pyfuzon/Cargo.toml
           sccache: 'true'
+          docker-options: -e "OPENSSL_DIR=/usr/lib64/openssl"
           manylinux: auto
       - name: Upload wheels
         uses: actions/upload-artifact@v4

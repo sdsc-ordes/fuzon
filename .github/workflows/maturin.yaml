@@ -47,7 +47,7 @@ jobs:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --manifest-path pyfuzon/Cargo.toml
           sccache: 'true'
-          manylinux: manylinux_2_28
+          manylinux: auto
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:

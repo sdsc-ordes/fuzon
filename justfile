@@ -10,6 +10,8 @@ build *args:
   cargo build \
     --manifest-path fuzon/Cargo.toml \
     --release
+  # fix for openssl regression, see: https://github.com/openssl/openssl/pull/25367#issuecomment-2336747983
+  cargo update openssl-src --precise 300.3.1+3.3.1
   maturin build \
     --manifest-path pyfuzon/Cargo.toml \
     --release \
@@ -40,8 +42,8 @@ develop-docker:
   docker run \
     --user 1000:1000 \
     -it \
-    -w "/build/workspace" \
-    --mount type=bind,source="$(pwd)",target=/build/workspace \
+    -w "/workspace" \
+    --mount type=bind,source="$(pwd)",target=/workspace \
     {{image}}:dev
 
 ## Maintenance

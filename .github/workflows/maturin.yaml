@@ -53,7 +53,7 @@ jobs:
             if command -v yum &> /dev/null; then
                 # https://github.com/openssl/openssl/discussions/24840
                 yum search rh-perl
-                yum update -y && yum install -y rh-perl530 openssl openssl-devel pkgconfig libatomic
+                yum update -y && yum install -y rh-perl530 rh-perl530-perl-IPC-Cmd openssl openssl-devel pkgconfig libatomic
                 scl enable rh-perl530 bash
 
                 # If we're running on i686 we need to symlink libatomic

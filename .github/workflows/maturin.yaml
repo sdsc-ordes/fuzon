@@ -52,9 +52,9 @@ jobs:
             # If we're running on rhel centos, install needed packages.
             if command -v yum &> /dev/null; then
                 # https://github.com/openssl/openssl/discussions/24840
-                yum search rh-perl
                 yum update -y && yum install -y rh-perl530 rh-perl530-perl-IPC-Cmd openssl openssl-devel pkgconfig libatomic
                 scl enable rh-perl530 bash
+                export PERL5LIB=/opt/rh/rh-perl530/root/usr/share/perl5/vendor_perl
 
                 # If we're running on i686 we need to symlink libatomic
                 # in order to build openssl with -latomic flag.

@@ -3,8 +3,7 @@
 > [!WARNING]
 > This repository is a prototype and not yet in a usable state.
 
-fuzon allows to search entities in rdf knowledge graphs based on their labels. It is a wrapper around the [rff](https://github.com/stewart/rff) fuzzy finder. Example use cases of this tool include finding instances belonging to an enumeration class in a given source ontology. It prefetches URI - label pairs using SPARQL queries in the back-end, ran on an in-memory [oxigraph](https://github.com/oxigraph/oxigraph) store to find the items relevant to index. This index allows for the highly performant, near real-time feedback to "auto-complete" in the terminal.
-
+fuzon allows to fuzzy search entities in rdf knowledge graphs based on their labels. It is a wrapper around the [rff](https://github.com/stewart/rff) fuzzy finder. Example use cases of this tool include finding codes based on their label in a given source ontology. It prefetches URI - label pairs in the back-end, by parsing source ontologies. This allows for highly performant fuzzy searches, with near-instant feedback to use in "auto-complete" interfaces.
 
 ## installation
 

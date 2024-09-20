@@ -54,7 +54,8 @@ jobs:
                 # https://github.com/openssl/openssl/discussions/24840
                 yum update -y && yum install -y rh-perl530 rh-perl530-perl-IPC-Cmd openssl openssl-devel pkgconfig libatomic
                 scl enable rh-perl530 bash
-                export PERL5LIB=/opt/rh/rh-perl530/root/usr/share/perl5
+                export PERL5LIB=/opt/rh/rh-perl530/root/usr/share/perl5/vendor_perl:/opt/rh/rh-perl530/root/usr/share/perl5/Locale
+
 
                 # If we're running on i686 we need to symlink libatomic
                 # in order to build openssl with -latomic flag.

@@ -3,9 +3,11 @@
 > [!WARNING]
 > This repository is a prototype and not yet in a usable state.
 
-fuzon allows to fuzzy search entities in rdf knowledge graphs based on their labels. It is a wrapper around the [rff](https://github.com/stewart/rff) fuzzy finder. Example use cases of this tool include finding codes based on their label in a given source ontology. It prefetches URI - label pairs in the back-end, by parsing source ontologies. This allows for highly performant fuzzy searches, with near-instant feedback to use in "auto-complete" interfaces.
+fuzon allows to fuzzy search entities in rdf knowledge graphs based on their labels. It is a wrapper around the [rff](https://github.com/stewart/rff) fuzzy finder. Example use cases of this tool include finding codes based on their label in a given source ontology. It prefetches URI - label pairs in the back-end, by parsing source ontologies (either from a local file or a URL). This allows for highly performant fuzzy searches, with near-instant feedback to use in "auto-complete" interfaces.
 
 ## installation
+
+The rust crate can be installed by cloning the repo and building locally:
 
 ```shell
 git clone https://github.com/sdsc-ordes/fuzon
@@ -13,6 +15,12 @@ cd fuzon
 cargo build --release
 
 ./target/release/fuzon --help
+```
+
+The python package is distributed on PyPI and can be installed with:
+
+```shell
+pip install pyfuzon
 ```
 
 ## usage

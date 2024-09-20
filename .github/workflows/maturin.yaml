@@ -52,7 +52,7 @@ jobs:
             # If we're running on rhel centos, install needed packages.
             if command -v yum &> /dev/null; then
                 # https://github.com/openssl/openssl/discussions/24840
-                yum update -y && yum install -y rh-perl530 rh-perl530-perl-IPC-Cmd openssl openssl-devel pkgconfig libatomic
+                yum update -y && yum install -y rh-perl530 rh-perl530-perl-IPC-Cmd rh-perl530-perl-version openssl openssl-devel pkgconfig libatomic
                 scl enable rh-perl530 bash
                 export PERL5LIB=/opt/rh/rh-perl530/root/usr/share/perl5/vendor_perl:/opt/rh/rh-perl530/root/usr/share/perl5
 

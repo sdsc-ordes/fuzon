@@ -116,7 +116,7 @@ pub fn gather_terms(readers: Vec<impl BufRead>) -> impl Iterator<Item = Term> {
     // NOTE: May want to use bulk loader for better performances
     let mut terms = Vec::new();
     for reader in readers {
-        let parser = TurtleParser::new().parse_read(reader);
+        let parser = TurtleParser::new().for_reader(reader);
         let mut out = parser
             .map(|t| t.expect("Error parsing RDF"))
             .filter(|t| ANNOTATIONS.contains(t.predicate.as_str()))

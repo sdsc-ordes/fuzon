@@ -1,6 +1,6 @@
 [package]
 name = "pyfuzon"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 
 [lib]
@@ -11,11 +11,10 @@ crate-type = ["cdylib"]
 anyhow = "1.0.86"
 clap = { version = "4.5.16", features = ["derive"] }
 crossterm = "0.28.1"
-fuzon = { version = "0.1.0", path = "../fuzon" }
+fuzon = { version = "0.2.0", path = "../fuzon" }
 lazy_static = "1.5.0"
 oxrdf = "0.1.7"
 oxttl = "0.1.0-rc.1"
 pyo3 = { version = "0.22.2", features = ["abi3-py310"] }
 ratatui = "0.28.1"
-reqwest = { version = "0.12.7", features = ["blocking"] }
 rff = "0.3.0"

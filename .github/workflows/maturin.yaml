@@ -47,6 +47,7 @@ jobs:
           target: ${{ matrix.platform.target }}
           manylinux: auto
           #sccache: 'true'
+          args: --release --out dist --manifest-path pyfuzon/Cargo.toml
           before-script-linux: |
             # If we're running on rhel centos, install needed packages.
             if command -v yum &> /dev/null; then
@@ -60,7 +61,7 @@ jobs:
             else
                 # If we're running on debian-based system.
                 apt update -y && apt-get install -y libssl-dev openssl pkg-config
-            fi        args: --release --out dist --manifest-path pyfuzon/Cargo.toml
+            fi
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:

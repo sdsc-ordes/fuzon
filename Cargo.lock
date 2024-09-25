@@ -463,13 +463,14 @@ dependencies = [
 
 [[package]]
 name = "fuzon"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "clap 4.5.17",
  "crossterm",
  "lazy_static",
  "oxrdf 0.1.7",
+ "oxrdfio",
  "oxttl",
  "ratatui",
  "reqwest",
@@ -928,9 +929,9 @@ dependencies = [
 
 [[package]]
 name = "oxrdf"
-version = "0.2.0-rc.2"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d1606c7721d7bae945e9b90f3d7a9cfb9e0e7e3e2ec6ff5d53c290fb8336b187"
+checksum = "4c23ac4556485d4d4c31f3448a7ccc53d2444617a5e46ccc39f2f5a74e28091e"
 dependencies = [
  "oxilangtag",
  "oxiri",
@@ -939,15 +940,40 @@ dependencies = [
 ]
 
 [[package]]
-name = "oxttl"
-version = "0.1.0-rc.2"
+name = "oxrdfio"
+version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7081a82ab0371b3ab5d9411531fe1de5b594a7fcf36f3b70f3f70ce417c9e11f"
+checksum = "b4706c6af55788842d2db36cff725001f4d3b84882bcccb6c19d798542742cf6"
+dependencies = [
+ "oxrdf 0.2.0",
+ "oxrdfxml",
+ "oxttl",
+ "thiserror",
+]
+
+[[package]]
+name = "oxrdfxml"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eb88436b3c4375d87d320387f9b6fa84a772ea927ad0a9458fc35780605cda47"
+dependencies = [
+ "oxilangtag",
+ "oxiri",
+ "oxrdf 0.2.0",
+ "quick-xml",
+ "thiserror",
+]
+
+[[package]]
+name = "oxttl"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9795d5819708ef1669906eb96783a1764bf4b283f7615d46f66a798e8101fd3b"
 dependencies = [
  "memchr",
  "oxilangtag",
  "oxiri",
- "oxrdf 0.2.0-rc.2",
+ "oxrdf 0.2.0",
  "thiserror",
 ]
 
@@ -1050,7 +1076,7 @@ dependencies = [
 
 [[package]]
 name = "pyfuzon"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "clap 4.5.17",
@@ -1125,6 +1151,15 @@ dependencies = [
  "pyo3-build-config",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "quick-xml"
+version = "0.36.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f7649a7b4df05aed9ea7ec6f628c67c9953a43869b8bc50929569b2999d443fe"
+dependencies = [
+ "memchr",
 ]
 
 [[package]]

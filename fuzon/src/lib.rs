@@ -5,7 +5,7 @@ use std::io::{BufRead, BufReader};
 
 use anyhow::Result;
 use lazy_static::lazy_static;
-use oxttl::TurtleParser;
+use oxrdfio::{RdfFormat, RdfParser};
 use reqwest::blocking::Client;
 use reqwest::Url;
 
@@ -54,7 +54,7 @@ impl TermMatcher {
             .map(|t| t.0)
             .collect()
     }
-    pub fn from_readers(readers: Vec<impl BufRead>) -> Self {
+    pub fn from_readers(readers: Vec<(impl BufRead, RdfFormat)>) -> Self {
         let terms = gather_terms(readers).collect();
         TermMatcher { terms }
     }
@@ -78,18 +78,26 @@ impl fmt::Display for Term {
     }
 }
 
-pub fn get_source(path: &str) -> Result<Box<dyn BufRead>> {
+/// Get an rdf reader along with its format from a path
+pub fn get_source(path: &str) -> Result<(Box<dyn BufRead>, RdfFormat)> {
+    let file_ext = path.split('.').last().unwrap();
+    let ext = match file_ext {
+        "owl" => "xml",
+        "rdf" => "xml",
+        _ => file_ext,
+    };
+    let format = RdfFormat::from_extension(ext).expect("Unkown file extension");
     if let Ok(url) = Url::parse(path) {
         // Handle URL
         let client = Client::new();
         let response = client.get(url).send()?.error_for_status()?;
         let reader = BufReader::new(response);
-        Ok(Box::new(reader)) // Return boxed reader for URL
+        Ok((Box::new(reader), format)) // Return boxed reader for URL
     } else {
         // Handle file path
         let file = File::open(path)?;
         let reader = BufReader::new(file);
-        Ok(Box::new(reader)) // Return boxed reader for file
+        Ok((Box::new(reader), format)) // Return boxed reader for file
     }
 }
 /// Returns the input term vector sorted by match score (best first),
@@ -111,12 +119,13 @@ pub fn rank_terms<'a>(query: &str, terms: Vec<&'a Term>) -> Vec<(&'a Term, f64)>
     return ranked;
 }
 
-// Load URI-label pairs from all source.
-pub fn gather_terms(readers: Vec<impl BufRead>) -> impl Iterator<Item = Term> {
+
+// Load URI-label pairs from all sources.
+pub fn gather_terms(readers: Vec<(impl BufRead, RdfFormat)>) -> impl Iterator<Item = Term> {
     // NOTE: May want to use bulk loader for better performances
     let mut terms = Vec::new();
-    for reader in readers {
-        let parser = TurtleParser::new().for_reader(reader);
+    for (reader, format) in readers {
+        let parser = RdfParser::from_format(format).for_reader(reader);
         let mut out = parser
             .map(|t| t.expect("Error parsing RDF"))
             .filter(|t| ANNOTATIONS.contains(t.predicate.as_str()))

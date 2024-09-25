@@ -38,10 +38,10 @@ Running fuzon without a query will start an interactive prompt to browse the inp
 ### rust library
 ```rust
 use fuzon;
-let r1 = BufReader::new(File::open("onto1.ttl")) 
-let r2 = BufReader::new(File::open("onto2.ttl"))
-// all readers combined into a single graph
-let matcher = TermMatcher::from_readers(vec![r1, r2])
+let onto1 = "./onto1.ttl".to_string()
+let onto2 = "https://example.org/onto2.xml".to_string()
+// all ontologies combined into a single graph
+let matcher = TermMatcher::from_files(vec![onto1, onto2])
 matcher.rank_terms("some query")
 ```
 

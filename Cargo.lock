@@ -818,6 +818,9 @@ name = "fuzon-http"
 version = "0.1.0"
 dependencies = [
  "actix-web",
+ "fuzon",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

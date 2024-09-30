@@ -1,0 +1,8 @@
+[package]
+name = "fuzon-http"
+version = "0.1.0"
+license.workspace = true
+edition.workspace = true
+
+[dependencies]
+actix-web = "4.9.0"

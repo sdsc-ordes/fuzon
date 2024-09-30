@@ -2,7 +2,7 @@
 resolver = "2"
 
 members = [
-    "fuzon",
+    "fuzon", "fuzon-http",
     "pyfuzon",
 ]
 

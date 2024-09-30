@@ -27,7 +27,7 @@ struct Config {
     collections: HashMap<String, String>,
 }
 
-// Shared app state used by services
+// Shared app state built from config and used by services
 struct AppState {
     collections: Arc<HashMap<String, TermMatcher>>,
 }
@@ -77,7 +77,8 @@ async fn top(data: web::Data<AppState>, req: web::Query<CodeRequest>) -> Result<
 
 #[actix_web::main] // or #[tokio::main]
 async fn main() -> std::io::Result<()> {
-    // NOTE: serde from inline json, later this will be a config file
+
+    // NOTE: config as inline json for debugging, later this will be a config file
     let config_data = r#"
         {
             "collections": {

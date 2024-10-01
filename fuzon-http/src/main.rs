@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use actix_web::{get, web, App, HttpServer, Responder, Result};
+use clap::Parser;
 use fuzon::{TermMatcher};
 use serde::{Deserialize, Serialize};
 use serde_json;
@@ -74,10 +75,20 @@ async fn top(data: web::Data<AppState>, req: web::Query<CodeRequest>) -> Result<
     Ok(web::Json(top_terms))
 }
 
+/// http server to serve the fuzon terminology matching api
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+    /// Path to the configuration file.
+    #[clap(short, long)]
+    config: String,
+}
+
+
 #[actix_web::main] // or #[tokio::main]
 async fn main() -> std::io::Result<()> {
-
-    let config_path = "config/example.json";
+    let args = Args::parse();
+    let config_path = args.config;
 
     let config: Config = serde_json::from_reader(
         File::open(config_path).expect("Failed to open config file.")

@@ -33,6 +33,7 @@ lazy_static! {
     };
 }
 
+#[derive(Debug, Clone)]
 pub struct TermMatcher {
     pub terms: Vec<Term>,
 }

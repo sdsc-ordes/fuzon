@@ -28,6 +28,7 @@ struct Config {
 }
 
 // Shared app state built from config and used by services
+#[derive(Clone, Debug)]
 struct AppState {
     collections: Arc<HashMap<String, TermMatcher>>,
 }
@@ -42,11 +43,6 @@ impl AppState {
     }
 }
 
-// Used for debugging
-#[get("/hello/{name}")]
-async fn greet(name: web::Path<String>) -> impl Responder {
-    format!("Hello {name}!")
-}
 
 // list collections: /list
 #[get("/list")]
@@ -88,15 +84,14 @@ async fn main() -> std::io::Result<()> {
             }
         }"#;
     let data = web::block(move || 
-        serde_json::from_str::<Config>(config_data).unwrap()
+        AppState::from_config(serde_json::from_str::<Config>(config_data).unwrap())
     )
         .await
         .expect("Failed to parse config");
 
     HttpServer::new(move || {
         App::new()
-            .app_data(web::Data::new(AppState::from_config(data.clone())))
-            .service(greet)
+            .app_data(web::Data::new(data.clone()))
             .service(list)
             .service(top)
     })

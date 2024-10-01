@@ -4,6 +4,7 @@ use fuzon::{TermMatcher};
 use serde::{Deserialize, Serialize};
 use serde_json;
 use std::sync::Arc;
+use std::fs::File;
 
 // URL query parameters when requesting matching codes
 #[derive(Debug, Deserialize)]
@@ -76,20 +77,17 @@ async fn top(data: web::Data<AppState>, req: web::Query<CodeRequest>) -> Result<
 #[actix_web::main] // or #[tokio::main]
 async fn main() -> std::io::Result<()> {
 
-    // NOTE: config as inline json for debugging, later this will be a config file
-    let config_data = r#"
-        {
-            "collections": {
-                "cell_type": "https://purl.obolibrary.org/obo/cl.owl",
-                "source_material": "https://purl.obolibrary.org/obo/uberon.owl",
-                "taxon_id": "https://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl"
-            }
-        }"#;
+    let config_path = "config/example.json";
+
+    let config: Config = serde_json::from_reader(
+        File::open(config_path).expect("Failed to open config file.")
+    ).expect("Failed to parse config.");
+
     let data = web::block(move || 
-        AppState::from_config(serde_json::from_str::<Config>(config_data).unwrap())
+        AppState::from_config(config)
     )
         .await
-        .expect("Failed to parse config");
+        .expect("Failed to initialize state from config.");
 
     HttpServer::new(move || {
         App::new()

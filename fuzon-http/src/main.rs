@@ -38,7 +38,9 @@ impl AppState {
         let collections = data
             .collections
             .into_iter()
-            .map(|(k, v)| (k, TermMatcher::from_paths(vec![&v]).unwrap())).collect();
+            .inspect(|(k, _)| println!("Loading {}...", k))
+            .map(|(k, v)| (k, TermMatcher::from_paths(vec![&v]).unwrap()))
+            .collect();
         AppState { collections: Arc::new(collections) }
     }
 }

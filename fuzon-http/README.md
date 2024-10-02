@@ -27,23 +27,25 @@ Fuzzy matching queries should use `GET /top?collection={collection}&top={top}&qu
 ```shell
 # example
 $ curl 'http://localhost:8080/top?collection=cell_type&top=3&query=leukocyte'
-[
-  {
-    "label":"\"myeloid leukocyte\"",
-    "uri":"<http://purl.obolibrary.org/obo/CL_0000766>",
-    "score":null
-  },
-  {
-    "label":"\"nongranular leukocyte\"",
-    "uri":"<http://purl.obolibrary.org/obo/CL_0002087>",
-    "score":null
-  },
-  {
-    "label":"\"myeloid leukocyte migration\"",
-    "uri":"<http://purl.obolibrary.org/obo/GO_0097529>",
-    "score":null
-  }
-]
+{
+  "codes": [
+    {
+      "label":"\"myeloid leukocyte\"",
+      "uri":"<http://purl.obolibrary.org/obo/CL_0000766>",
+      "score":null
+    },
+    {
+      "label":"\"nongranular leukocyte\"",
+      "uri":"<http://purl.obolibrary.org/obo/CL_0002087>",
+      "score":null
+    },
+    {
+      "label":"\"myeloid leukocyte migration\"",
+      "uri":"<http://purl.obolibrary.org/obo/GO_0097529>",
+      "score":null
+    }
+  ]
+}
 ```
 
 To discover available collections, use `GET /list`.
@@ -51,7 +53,9 @@ To discover available collections, use `GET /list`.
 ```shell
 # example
 $ curl 'http://localhost:8080/list'
-["cell_type","source_material","taxon_id"]
+{
+  "collections": ["cell_type","source_material","taxon_id"]
+}
 ```
 
 ## Example
@@ -72,7 +76,7 @@ while IFS= read -r -n1 -s key; do
   # Clear terminal ouptut
   tput ed
   echo "input: " $keys
-  curl -s "http://localhost:8080/top?query=${keys}&top=10&collection=cell_type" | jq -r '.[] | "\(.label) \(.uri)"'
+  curl -s "http://localhost:8080/top?query=${keys}&top=10&collection=cell_type" | jq -r '.codes[] | "\(.label) \(.uri)"'
   # move cursor up 11 lines (1 for input display + 10 codes)
   tput cuu 11
 done

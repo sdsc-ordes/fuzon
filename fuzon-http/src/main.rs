@@ -19,10 +19,15 @@ pub struct CodeRequest {
 
 // Response model containing matching codes
 #[derive(Debug, Serialize)]
-pub struct MatchResponse {
+pub struct CodeMatch {
     label: String,
     uri: String,
     score: Option<f64>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct MatchResponse {
+    codes: Vec<CodeMatch>,
 }
 
 // Config file structure
@@ -62,10 +67,11 @@ impl AppState {
 // list collections: /list
 #[get("/list")]
 async fn list(data: web::Data<AppState>) -> impl Responder {
-
+    let mut response = HashMap::new();
     let collections : Vec<String> = data.collections.keys().cloned().collect();
+    response.insert("collections".to_string(), collections);
 
-    web::Json(collections)
+    web::Json(response)
 
 }
 
@@ -73,17 +79,17 @@ async fn list(data: web::Data<AppState>) -> impl Responder {
 #[get("/top")]
 async fn top(data: web::Data<AppState>, req: web::Query<CodeRequest>) -> Result<impl Responder> {
 
-    let top_terms: Vec<MatchResponse> = data.collections
+    let top_terms: Vec<CodeMatch> = data.collections
         .get(&req.collection)
         .expect(&format!("Collection not found: {}", req.collection))
         .top_terms(&req.query, req.top)
         .into_iter()
-        .map(|t| MatchResponse {
+        .map(|t| CodeMatch {
             label: t.label.clone(), uri: t.uri.clone(), score: None
         })
         .collect();
 
-    Ok(web::Json(top_terms))
+    Ok(web::Json(MatchResponse{ codes: top_terms }))
 }
 
 /// http server to serve the fuzon terminology matching api

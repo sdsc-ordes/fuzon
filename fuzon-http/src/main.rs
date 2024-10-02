@@ -40,7 +40,7 @@ impl AppState {
         let collections = data
             .collections
             .into_iter()
-            .inspect(|(k, _)| println!("Loading {}...", k))
+            .inspect(|(k, _)| println!("Loading collection {}...", k))
             .map(|(k, v)| (k, TermMatcher::from_paths(vec![&v]).unwrap()))
             .collect();
         AppState { collections: Arc::new(collections) }

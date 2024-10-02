@@ -1,4 +1,6 @@
 {
+  "host": "::",
+  "port": 8080,
   "collections": {
     "cell_type": "https://purl.obolibrary.org/obo/cl.owl",
     "source_material": "https://purl.obolibrary.org/obo/uberon.owl",

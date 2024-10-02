@@ -26,7 +26,9 @@ pub struct MatchResponse {
 // Config file structure
 # [derive(Clone, Debug, Deserialize)]
 struct Config {
-    collections: HashMap<String, String>,
+    host: String,
+    port: u16,
+    collections: HashMap<String, Vec<String>>,
 }
 
 // Shared app state built from config and used by services
@@ -93,6 +95,8 @@ async fn main() -> std::io::Result<()> {
     let config: Config = serde_json::from_reader(
         File::open(config_path).expect("Failed to open config file.")
     ).expect("Failed to parse config.");
+    let host = config.host.clone();
+    let port = config.port as u16;
 
     let data = web::block(move || 
         AppState::from_config(config)
@@ -106,7 +110,7 @@ async fn main() -> std::io::Result<()> {
             .service(list)
             .service(top)
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind((host, port))?
     .run()
     .await
 }

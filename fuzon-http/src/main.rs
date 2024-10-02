@@ -39,12 +39,19 @@ struct AppState {
 
 impl AppState {
     fn from_config(data: Config) -> Self {
-        let collections = data
+        let collections = data.clone()
             .collections
             .into_iter()
-            .inspect(|(k, _)| println!("Loading collection {}...", k))
-            .map(|(k, v)| (k, TermMatcher::from_paths(vec![&v]).unwrap()))
+            .inspect(|(k, _)| println!("Loading collection: {}...", k))
+            .map(|(k, v)| (
+                k, 
+                TermMatcher::from_paths(
+                    v.iter().map(|s| &**s).collect()).unwrap()
+                )
+            )
             .collect();
+
+        println!("Initialized with: {:?}", &data);
         AppState { collections: Arc::new(collections) }
     }
 }

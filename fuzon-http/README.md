@@ -24,7 +24,35 @@ Start the server with:
 
 Fuzzy matching queries should use `GET /top?collection={collection}&top={top}&query={query}`.
 
+```shell
+# example
+$ curl 'http://localhost:8080/top?collection=cell_type&top=3&query=leukocyte'
+[
+  {
+    "label":"\"myeloid leukocyte\"",
+    "uri":"<http://purl.obolibrary.org/obo/CL_0000766>",
+    "score":null
+  },
+  {
+    "label":"\"nongranular leukocyte\"",
+    "uri":"<http://purl.obolibrary.org/obo/CL_0002087>",
+    "score":null
+  },
+  {
+    "label":"\"myeloid leukocyte migration\"",
+    "uri":"<http://purl.obolibrary.org/obo/GO_0097529>",
+    "score":null
+  }
+]
+```
+
 To discover available collections, use `GET /list`.
+
+```shell
+# example
+$ curl 'http://localhost:8080/list'
+["cell_type","source_material","taxon_id"]
+```
 
 ## Example
 

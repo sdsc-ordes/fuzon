@@ -12,10 +12,15 @@ The server takes a configuration file as input to determine what ontologies to l
 ```shell
 cd fuzon-http
 cargo build --release
-../target/release/fuzon-http --config config/example.json
 ```
 
 ## Usage
+
+Start the server with:
+
+```shell
+../target/release/fuzon-http --config config/example.json
+```
 
 Fuzzy matching queries should use `GET /top?collection={collection}&top={top}&query={query}`.
 

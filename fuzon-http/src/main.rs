@@ -1,9 +1,11 @@
 use std::collections::HashMap;
-use actix_web::{get, web, App, HttpServer, Responder, Result};
+use actix_web::{get, middleware, web, App, HttpServer, Responder, Result};
 use clap::Parser;
-use fuzon::{TermMatcher};
+use fuzon::TermMatcher;
+use log::info;
 use serde::{Deserialize, Serialize};
 use serde_json;
+use std::env;
 use std::sync::Arc;
 use std::fs::File;
 
@@ -42,7 +44,7 @@ impl AppState {
         let collections = data.clone()
             .collections
             .into_iter()
-            .inspect(|(k, _)| println!("Loading collection: {}...", k))
+            .inspect(|(k, _)| info!("Loading collection: {}...", k))
             .map(|(k, v)| (
                 k, 
                 TermMatcher::from_paths(
@@ -51,7 +53,7 @@ impl AppState {
             )
             .collect();
 
-        println!("Initialized with: {:?}", &data);
+        info!("Initialized with: {:?}", &data);
         AppState { collections: Arc::new(collections) }
     }
 }
@@ -96,6 +98,8 @@ struct Args {
 
 #[actix_web::main] // or #[tokio::main]
 async fn main() -> std::io::Result<()> {
+    env::set_var("RUST_LOG", "fuzon_http=info,actix_web=warn,actix_server=info");
+    env_logger::init();
     let args = Args::parse();
     let config_path = args.config;
 
@@ -113,6 +117,7 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
+            .wrap(middleware::Logger::default())
             .app_data(web::Data::new(data.clone()))
             .service(list)
             .service(top)

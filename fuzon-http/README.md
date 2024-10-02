@@ -26,3 +26,30 @@ Fuzzy matching queries should use `GET /top?collection={collection}&top={top}&qu
 
 To discover available collections, use `GET /list`.
 
+## Example
+
+Here is a minimal example of how fuzon-http may be used from a tool.
+It is a bash script that continuously reads user-input, retrieves the top 10 best matching codes from the server and displays them in the terminal.
+
+```bash
+#!/bin/bash
+keys=""
+while IFS= read -r -n1 -s key; do
+  # delete chars when backspace is pressed
+  if [[ $key == $'\x7f' ]]; then
+    keys="${keys%?}"
+  else
+    keys="${keys}${key}"
+  fi
+  # Clear terminal ouptut
+  tput ed
+  echo "input: " $keys
+  curl -s "http://localhost:8080/top?query=${keys}&top=10&collection=cell_type" | jq -r '.[] | "\(.label) \(.uri)"'
+  # move cursor up 11 lines (1 for input display + 10 codes)
+  tput cuu 11
+done
+```
+
+And here it is in action:
+
+![](../docs/img/fuzon-http.svg)

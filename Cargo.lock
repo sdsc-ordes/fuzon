@@ -186,6 +186,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "actix-web-error"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2b7cb9768f3b52414ae8a94115dd7ce704d1fbb190f7e8c0789b07ec42bd3dec"
+dependencies = [
+ "actix-web-error-derive",
+ "serde",
+]
+
+[[package]]
+name = "actix-web-error-derive"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "61e2789c602f0c2ad274009620766690e334fe36f46aeaeea081d19b8af22c43"
+dependencies = [
+ "http 0.2.12",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "addr2line"
 version = "0.24.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -822,7 +844,7 @@ dependencies = [
 
 [[package]]
 name = "fuzon"
-version = "0.2.2"
+version = "0.2.3"
 dependencies = [
  "anyhow",
  "clap 4.5.18",
@@ -838,15 +860,17 @@ dependencies = [
 
 [[package]]
 name = "fuzon-http"
-version = "0.1.0"
+version = "0.2.3"
 dependencies = [
  "actix-web",
+ "actix-web-error",
  "clap 4.5.18",
  "env_logger",
  "fuzon",
  "log",
  "serde",
  "serde_json",
+ "thiserror",
 ]
 
 [[package]]
@@ -1550,7 +1574,7 @@ dependencies = [
 
 [[package]]
 name = "pyfuzon"
-version = "0.2.2"
+version = "0.2.3"
 dependencies = [
  "anyhow",
  "clap 4.5.18",
@@ -2193,18 +2217,18 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "1.0.63"
+version = "1.0.64"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c0342370b38b6a11b6cc11d6a805569958d54cfa061a29969c3b5ce2ea405724"
+checksum = "d50af8abc119fb8bb6dbabcfa89656f46f84aa0ac7688088608076ad2b459a84"
 dependencies = [
  "thiserror-impl",
 ]
 
 [[package]]
 name = "thiserror-impl"
-version = "1.0.63"
+version = "1.0.64"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a4558b58466b9ad7ca0f102865eccc95938dca1a74a856f2b57b6629050da261"
+checksum = "08904e7672f5eb876eaaf87e0ce17857500934f4981c4a0ab2b4aa98baac7fc3"
 dependencies = [
  "proc-macro2",
  "quote",

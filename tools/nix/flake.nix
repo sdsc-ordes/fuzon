@@ -2,8 +2,7 @@
   description = "fuzon";
 
   nixConfig = {
-    extra-trusted-substituters = [
-      "https://cache.nixos.org/"
+    extra-substituters = [
       # Nix community's cache server
       "https://nix-community.cachix.org"
     ];

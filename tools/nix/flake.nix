@@ -2,11 +2,8 @@
   description = "fuzon";
 
   nixConfig = {
-    substituters = [
-      # Add here some other mirror if needed.
+    extra-trusted-substituters = [
       "https://cache.nixos.org/"
-    ];
-    extra-substituters = [
       # Nix community's cache server
       "https://nix-community.cachix.org"
     ];
@@ -35,93 +32,93 @@
     };
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    flake-utils,
-    rust-overlay,
-    ...
-  }:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      flake-utils,
+      rust-overlay,
+      ...
+    }:
     flake-utils.lib.eachDefaultSystem
-    # Creates an attribute map `{ devShells.<system>.default = ...}`
-    # by calling this function:
-    (
-      system: let
-        rootSrc = ./../..;
+      # Creates an attribute map `{ devShells.<system>.default = ...}`
+      # by calling this function:
+      (
+        system:
+        let
+          rootSrc = ./../..;
 
-        overlays = [(import rust-overlay)];
+          overlays = [ (import rust-overlay) ];
 
-        # Import nixpkgs and load it into pkgs.
-        # Overlay the rust toolchain
-        pkgs = import nixpkgs {
-          inherit system overlays;
-        };
-
-        # Set the rust toolchain from the `rust-toolchain.toml`.
-        rustToolchain = pkgs.pkgsBuildHost.rust-bin.fromRustupToolchainFile ../../rust-toolchain.toml;
-
-        # Things needed only at compile-time.
-        basic-deps = with pkgs; [
-          maturin
-          findutils
-          coreutils
-          bash
-          zsh
-          curl
-          git
-          jq
-        ];
-
-        # Things needed only at compile-time.
-        general-deps = [
-          rustToolchain
-          pkgs.cargo-watch
-          pkgs.just
-
-          pkgs.skopeo
-          pkgs.dasel
-          pkgs.python313
-        ];
-
-        benchmark-deps = with pkgs; [
-          hyperfine
-          heaptrack
-        ];
-
-        # The package of this CLI tool.
-        # The global version for fuzon.
-        # This is gonna get tooled later.
-        fuzon = pkgs.callPackage ./pkgs/fuzon {
-          inherit rootSrc;
-          inherit rustToolchain;
-        };
-      in rec {
-        devShells = {
-          default = pkgs.mkShell {
-            packages = basic-deps ++ general-deps;
+          # Import nixpkgs and load it into pkgs.
+          # Overlay the rust toolchain
+          pkgs = import nixpkgs {
+            inherit system overlays;
           };
-          bench = pkgs.mkShell {
-            packages =
-              basic-deps
-              ++ general-deps
-              ++ benchmark-deps;
+
+          # Set the rust toolchain from the `rust-toolchain.toml`.
+          rustToolchain = pkgs.pkgsBuildHost.rust-bin.fromRustupToolchainFile ../../rust-toolchain.toml;
+
+          # Things needed only at compile-time.
+          basic-deps = with pkgs; [
+            maturin
+            findutils
+            coreutils
+            bash
+            zsh
+            curl
+            git
+            jq
+          ];
+
+          # Things needed only at compile-time.
+          general-deps = [
+            rustToolchain
+            pkgs.cargo-watch
+            pkgs.just
+
+            pkgs.skopeo
+            pkgs.dasel
+            pkgs.python313
+          ];
+
+          benchmark-deps = with pkgs; [
+            hyperfine
+            heaptrack
+          ];
+
+          # The package of this CLI tool.
+          # The global version for fuzon.
+          # This is gonna get tooled later.
+          fuzon = pkgs.callPackage ./pkgs/fuzon {
+            inherit rootSrc;
+            inherit rustToolchain;
           };
-        };
-
-        packages = {
-          fuzon = fuzon;
-
-          images = {
-            dev = (import ./images/dev.nix) {
-              inherit pkgs;
-              devShellDrv = devShells.default;
+        in
+        rec {
+          devShells = {
+            default = pkgs.mkShell {
+              packages = basic-deps ++ general-deps;
             };
-
-            fuzon = (import ./images/fuzon.nix) {
-              inherit pkgs fuzon;
+            bench = pkgs.mkShell {
+              packages = basic-deps ++ general-deps ++ benchmark-deps;
             };
           };
-        };
-      }
-    );
+
+          packages = {
+            fuzon = fuzon;
+
+            images = {
+              dev = (import ./images/dev.nix) {
+                inherit pkgs;
+                devShellDrv = devShells.default;
+              };
+
+              fuzon = (import ./images/fuzon.nix) {
+                inherit pkgs fuzon;
+              };
+            };
+          };
+        }
+      );
 }

@@ -1,8 +1,11 @@
+use std::fs;
+use std::path::Path;
 use fuzon::ui::{interactive, search};
 
 use anyhow::Result;
 use clap::Parser;
-use fuzon::TermMatcher;
+use dirs;
+use fuzon::{get_cache_path, TermMatcher};
 
 /// fuzzy match terms from ontologies to get their uri
 #[derive(Parser, Debug)]
@@ -18,6 +21,10 @@ struct Args {
     /// Only return the top N results.
     #[clap(short, long)]
     top: Option<usize>,
+
+    /// Do not load from cache.
+    #[clap(short, long, default_value = "false")]
+    no_cache: bool,
 }
 
 fn main() -> Result<()> {
@@ -27,7 +34,27 @@ fn main() -> Result<()> {
         .iter()
         .map(|s| s.as_str())
         .collect();
-    let matcher = TermMatcher::from_paths(sources)?;
+
+    // Attempt to load from cache
+    let matcher: TermMatcher;
+    if !args.no_cache {
+        let cache_path = get_cache_path(
+            &sources
+        );
+        let _ = fs::create_dir_all(cache_path.parent().unwrap());
+        // Cache hit
+        matcher = if let Ok(m) = TermMatcher::load(&cache_path) {
+           m 
+        // Cache miss
+        } else {
+            let m =TermMatcher::from_paths(sources)?;
+            m.dump(&cache_path)?;
+            m 
+        };
+    } else {
+        matcher = TermMatcher::from_paths(sources)?;
+    }
+    //matcher.clone().dump(Path::new("./terms.bin"))?;
 
     if let Some(query) = args.query {
         for (term, score) in search(&matcher, &query, args.top) {

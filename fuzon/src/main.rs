@@ -1,10 +1,8 @@
 use std::fs;
-use std::path::Path;
 use fuzon::ui::{interactive, search};
 
 use anyhow::Result;
 use clap::Parser;
-use dirs;
 use fuzon::{get_cache_path, TermMatcher};
 
 /// fuzzy match terms from ontologies to get their uri

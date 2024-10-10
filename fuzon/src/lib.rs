@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use std::fs::File;
 use std::path::{Path, PathBuf};
 use std::hash::{DefaultHasher, Hash, Hasher};
-use std::io::{BufRead, BufReader, Read, Write};
+use std::io::{BufRead, BufReader};
 
 use anyhow::Result;
 use dirs;

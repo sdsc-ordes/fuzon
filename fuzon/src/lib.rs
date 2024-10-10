@@ -1,13 +1,18 @@
 use core::fmt;
 use std::collections::HashSet;
 use std::fs::File;
+use std::path::{Path, PathBuf};
+use std::hash::{DefaultHasher, Hash, Hasher};
 use std::io::{BufRead, BufReader};
 
 use anyhow::Result;
+use dirs;
 use lazy_static::lazy_static;
 use oxrdfio::{RdfFormat, RdfParser};
+use postcard;
 use reqwest::blocking::Client;
 use reqwest::Url;
+use serde::{Deserialize, Serialize};
 
 use rff;
 
@@ -33,7 +38,7 @@ lazy_static! {
     };
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
 pub struct TermMatcher {
     pub terms: Vec<Term>,
 }
@@ -65,9 +70,22 @@ impl TermMatcher {
         let terms: Vec<Term> = gather_terms(readers).collect();
         Ok(TermMatcher { terms })
     }
+
+    pub fn load(path: &Path) -> Result<Self> {
+        let bytes = std::fs::read(path)?;
+        let matcher = postcard::from_bytes(&bytes)?;
+        Ok(matcher)
+    }
+
+    pub fn dump(&self, path: &Path) -> Result<()> {
+        let bytes = postcard::to_allocvec(&self).unwrap();
+        std::fs::write(path, &bytes)?;
+        Ok(())
+    }
 }
 
-#[derive(Debug, Clone)]
+
+#[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
 pub struct Term {
     pub uri: String,
     pub label: String,
@@ -140,3 +158,26 @@ pub fn gather_terms(readers: Vec<(impl BufRead, RdfFormat)>) -> impl Iterator<It
     terms.into_iter()
 }
 
+/// Generate a fixed cache key based on a collection of source paths.
+pub fn get_cache_key(sources: &Vec<&str>) -> String {
+    let mut paths = sources.clone();
+    paths.sort();
+    let concat = paths.join(" ");
+    let mut state = DefaultHasher::new();
+    concat.hash(&mut state);
+    let key = state.finish();
+
+    return key.to_string()
+}
+
+/// Get the full cross-platform cache path for a collection of source paths.
+pub fn get_cache_path(sources: &Vec<&str>) -> PathBuf {
+
+    let cache_dir = dirs::cache_dir().unwrap().join("fuzon");
+    let cache_key = get_cache_key(
+        &sources
+    );
+
+    return cache_dir.join(&cache_key)
+
+}

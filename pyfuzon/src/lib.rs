@@ -1,7 +1,8 @@
+use std::{fmt::write, path::PathBuf};
 use pyo3::prelude::*;
 use core::fmt;
 
-use fuzon::{get_source, gather_terms};
+use fuzon::{get_source, gather_terms, TermMatcher};
 use rff;
 
 #[pyclass]
@@ -56,7 +57,32 @@ pub fn parse_files(paths: Vec<String>) -> PyResult<Vec<Term>> {
         let terms = gather_terms(readers)
             .map(|t| Term::new(t.uri, t.label))
             .collect();
-        Ok(terms)
+    
+    return Ok(terms)
+}
+
+#[pyfunction]
+pub fn load_terms(path: PathBuf) -> PyResult<Vec<Term>> {
+    let terms: Vec<Term> = TermMatcher::load(&path)
+        .unwrap()
+        .terms
+        .into_iter()
+        .map(|t| Term::new(t.uri, t.label))
+        .collect();
+
+    return Ok(terms)
+}
+
+#[pyfunction]
+pub fn dump_terms(terms: Vec<Term>, path: PathBuf) -> PyResult<()> {
+    let mut matcher = TermMatcher::new();
+    matcher.terms = terms
+        .into_iter()
+        .map(|t| fuzon::Term{ uri: t.uri, label: t.label })
+        .collect();
+    matcher.dump(&path).unwrap();
+
+    return Ok(())
 }
 
 
@@ -64,6 +90,8 @@ pub fn parse_files(paths: Vec<String>) -> PyResult<Vec<Term>> {
 fn pyfuzon(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(score_terms, m)?)?;
     m.add_function(wrap_pyfunction!(parse_files, m)?)?;
+    m.add_function(wrap_pyfunction!(load_terms, m)?)?;
+    m.add_function(wrap_pyfunction!(dump_terms, m)?)?;
     m.add_class::<Term>()?;
     Ok(())
 }

@@ -1,13 +1,17 @@
 use core::fmt;
 use std::collections::HashSet;
 use std::fs::File;
-use std::io::{BufRead, BufReader};
+use std::hash::Hash;
+use std::path::Path;
+use std::io::{BufRead, BufReader, Read, Write};
 
 use anyhow::Result;
 use lazy_static::lazy_static;
 use oxrdfio::{RdfFormat, RdfParser};
+use postcard;
 use reqwest::blocking::Client;
 use reqwest::Url;
+use serde::{Deserialize, Serialize};
 
 use rff;
 
@@ -33,7 +37,7 @@ lazy_static! {
     };
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
 pub struct TermMatcher {
     pub terms: Vec<Term>,
 }
@@ -65,9 +69,21 @@ impl TermMatcher {
         let terms: Vec<Term> = gather_terms(readers).collect();
         Ok(TermMatcher { terms })
     }
+
+    pub fn load(path: &Path) -> Self {
+        let bytes = std::fs::read(path).unwrap();
+        postcard::from_bytes(&bytes).unwrap()
+    }
+
+    pub fn dump(self, path: &Path) -> Result<()> {
+        let bytes = postcard::to_allocvec(&self).unwrap();
+        std::fs::write(path, &bytes)?;
+        Ok(())
+    }
 }
 
-#[derive(Debug, Clone)]
+
+#[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
 pub struct Term {
     pub uri: String,
     pub label: String,

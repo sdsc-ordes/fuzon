@@ -54,13 +54,14 @@ fn main() -> Result<()> {
     } else {
         matcher = TermMatcher::from_paths(sources)?;
     }
-    //matcher.clone().dump(Path::new("./terms.bin"))?;
 
+    // Search for query
     if let Some(query) = args.query {
         for (term, score) in search(&matcher, &query, args.top) {
             println!("[{}] {}", score, term)
         }
         return Ok(());
+    // Or interactively trigger search on keystrokes
     } else {
         return interactive(&matcher, args.top);
     }

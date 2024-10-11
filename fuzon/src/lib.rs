@@ -158,3 +158,14 @@ pub fn gather_terms(readers: Vec<(impl BufRead, RdfFormat)>) -> impl Iterator<It
 }
 
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn matcher_from_source() {
+        let source = vec!["../data/test_schema.ttl"];
+        let matcher = TermMatcher::from_paths(source).unwrap();
+        assert_eq!(matcher.terms.len(), 11);
+    }
+}

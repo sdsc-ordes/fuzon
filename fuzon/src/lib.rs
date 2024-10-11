@@ -168,4 +168,23 @@ mod tests {
         let matcher = TermMatcher::from_paths(source).unwrap();
         assert_eq!(matcher.terms.len(), 11);
     }
+
+    #[test]
+    fn rank_terms() {
+        let source = vec!["../data/test_schema.ttl"];
+        let matcher = TermMatcher::from_paths(source).unwrap();
+        let query = "Person";
+        let ranked = matcher.rank_terms(query);
+        assert_eq!(ranked[0].0.label, "\"Person\"");
+    }
+
+    #[test]
+    fn serde() {
+        let source = vec!["../data/test_schema.ttl"];
+        let matcher = TermMatcher::from_paths(source).unwrap();
+        let path = Path::new("test_cache");
+        let _ = matcher.dump(path);
+        let loaded = TermMatcher::load(path).unwrap();
+        assert_eq!(matcher, loaded);
+    }
 }

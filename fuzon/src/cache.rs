@@ -79,10 +79,10 @@ mod tests {
     }
 
     #[test]
-    fn url_stamp() {
-        let url = "https://www.rust-lang.org/";
+    fn url_no_headers() {
+        let url = "https://google.com";
         let stamp = get_url_stamp(url).unwrap();
-        assert!(stamp.starts_with(url));
+        assert_eq!(stamp, format!("{}--", url));
     }
 
     #[test]

@@ -1,12 +1,10 @@
 use core::fmt;
 use std::collections::HashSet;
 use std::fs::File;
-use std::path::{Path, PathBuf};
-use std::hash::{DefaultHasher, Hash, Hasher};
+use std::path::Path;
 use std::io::{BufRead, BufReader};
 
 use anyhow::Result;
-use dirs;
 use lazy_static::lazy_static;
 use oxrdfio::{RdfFormat, RdfParser};
 use postcard;
@@ -18,6 +16,7 @@ use rff;
 
 
 pub mod ui;
+pub mod cache;
 
 // HashMap of common annotation properties
 lazy_static! {
@@ -158,26 +157,4 @@ pub fn gather_terms(readers: Vec<(impl BufRead, RdfFormat)>) -> impl Iterator<It
     terms.into_iter()
 }
 
-/// Generate a fixed cache key based on a collection of source paths.
-pub fn get_cache_key(sources: &Vec<&str>) -> String {
-    let mut paths = sources.clone();
-    paths.sort();
-    let concat = paths.join(" ");
-    let mut state = DefaultHasher::new();
-    concat.hash(&mut state);
-    let key = state.finish();
 
-    return key.to_string()
-}
-
-/// Get the full cross-platform cache path for a collection of source paths.
-pub fn get_cache_path(sources: &Vec<&str>) -> PathBuf {
-
-    let cache_dir = dirs::cache_dir().unwrap().join("fuzon");
-    let cache_key = get_cache_key(
-        &sources
-    );
-
-    return cache_dir.join(&cache_key)
-
-}

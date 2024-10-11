@@ -3,7 +3,8 @@ use fuzon::ui::{interactive, search};
 
 use anyhow::Result;
 use clap::Parser;
-use fuzon::{get_cache_path, TermMatcher};
+use fuzon::TermMatcher;
+use fuzon::cache::get_cache_path;
 
 /// fuzzy match terms from ontologies to get their uri
 #[derive(Parser, Debug)]
@@ -41,13 +42,13 @@ fn main() -> Result<()> {
         );
         let _ = fs::create_dir_all(cache_path.parent().unwrap());
         // Cache hit
-        matcher = if let Ok(m) = TermMatcher::load(&cache_path) {
-           m 
+        matcher = if let Ok(matcher) = TermMatcher::load(&cache_path) {
+           matcher
         // Cache miss
         } else {
-            let m =TermMatcher::from_paths(sources)?;
-            m.dump(&cache_path)?;
-            m 
+            let matcher =TermMatcher::from_paths(sources)?;
+            matcher.dump(&cache_path)?;
+            matcher 
         };
     } else {
         matcher = TermMatcher::from_paths(sources)?;

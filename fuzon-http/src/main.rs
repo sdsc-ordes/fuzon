@@ -1,13 +1,13 @@
-use std::collections::HashMap;
-use actix_web::{get, middleware, web, App, HttpServer, Responder, Result};
+mod errors;
+
+use actix_web::{get, middleware, rt::Runtime, web, App, HttpServer, Responder, Result};
 use clap::Parser;
+use errors::ApiError;
 use fuzon::TermMatcher;
 use log::info;
 use serde::{Deserialize, Serialize};
 use serde_json;
-use std::env;
-use std::sync::Arc;
-use std::fs::File;
+use std::{collections::HashMap, env, fs::File, sync::Arc};
 
 // URL query parameters when requesting matching codes
 #[derive(Debug, Deserialize)]
@@ -31,68 +31,79 @@ pub struct MatchResponse {
 }
 
 // Config file structure
-# [derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 struct Config {
     host: String,
     port: u16,
+    // TODO: Add doc what these dict maps.
     collections: HashMap<String, Vec<String>>,
 }
 
 // Shared app state built from config and used by services
 #[derive(Clone, Debug)]
 struct AppState {
+    // TODO: Add doc what these dict maps.
     collections: Arc<HashMap<String, TermMatcher>>,
 }
 
 impl AppState {
     fn from_config(data: Config) -> Self {
-        let collections = data.clone()
+        let collections = data
             .collections
-            .into_iter()
+            .iter()
             .inspect(|(k, _)| info!("Loading collection: {}...", k))
-            .map(|(k, v)| (
-                k, 
-                TermMatcher::from_paths(
-                    v.iter().map(|s| &**s).collect()).unwrap()
-                )
-            )
+            .map(|(k, v)| {
+                let s = v.iter().map(|s| s.as_str()).collect();
+                (k.clone(), TermMatcher::from_paths(s).unwrap())
+            })
             .collect();
 
         info!("Initialized with: {:?}", &data);
-        AppState { collections: Arc::new(collections) }
+
+        AppState {
+            collections: Arc::new(collections),
+        }
     }
 }
 
-
-// list collections: /list
+// The handler which returns the list collections on endpoint `/list`.
 #[get("/list")]
 async fn list(data: web::Data<AppState>) -> impl Responder {
+    //TODO:Define a proper type for this response
     let mut response = HashMap::new();
-    let collections : Vec<String> = data.collections.keys().cloned().collect();
+    let collections: Vec<String> = data.collections.keys().cloned().collect();
     response.insert("collections".to_string(), collections);
 
     web::Json(response)
-
 }
 
-// Top matching codes from collection for query: /top?collection={collection}&query={foobar}&top={10}
+// Top matching codes from
+// collection for query: /top?collection={collection}&query={foobar}&top={10}
 #[get("/top")]
-async fn top(data: web::Data<AppState>, req: web::Query<CodeRequest>) -> Result<impl Responder> {
+async fn top(
+    data: web::Data<AppState>,
+    req: web::Query<CodeRequest>,
+) -> Result<impl Responder, ApiError> {
+    // Get the collection.
+    let Some(matcher) = data.collections.get(&req.collection) else {
+        return Err(ApiError::MissingCollection(req.collection.clone()));
+    };
 
-    let top_terms: Vec<CodeMatch> = data.collections
-        .get(&req.collection)
-        .expect(&format!("Collection not found: {}", req.collection))
+    // Match all terms.
+    let top_terms: Vec<CodeMatch> = matcher
         .top_terms(&req.query, req.top)
-        .into_iter()
+        .iter()
         .map(|t| CodeMatch {
-            label: t.label.clone(), uri: t.uri.clone(), score: None
+            label: t.label.clone(),
+            uri: t.uri.clone(),
+            score: None,
         })
         .collect();
 
-    Ok(web::Json(MatchResponse{ codes: top_terms }))
+    Ok(web::Json(MatchResponse { codes: top_terms }))
 }
 
-/// http server to serve the fuzon terminology matching api
+/// Http server to serve the fuzon terminology matching api.
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
@@ -101,25 +112,17 @@ struct Args {
     config: String,
 }
 
-
-#[actix_web::main] // or #[tokio::main]
-async fn main() -> std::io::Result<()> {
-    env::set_var("RUST_LOG", "fuzon_http=info,actix_web=warn,actix_server=info");
-    env_logger::init();
+async fn async_main() -> std::io::Result<()> {
     let args = Args::parse();
     let config_path = args.config;
 
-    let config: Config = serde_json::from_reader(
-        File::open(config_path).expect("Failed to open config file.")
-    ).expect("Failed to parse config.");
+    let config: Config =
+        serde_json::from_reader(File::open(config_path).expect("Failed to open config file."))
+            .expect("Failed to parse config.");
     let host = config.host.clone();
     let port = config.port as u16;
 
-    let data = web::block(move || 
-        AppState::from_config(config)
-    )
-        .await
-        .expect("Failed to initialize state from config.");
+    let data = AppState::from_config(config);
 
     HttpServer::new(move || {
         App::new()
@@ -131,4 +134,22 @@ async fn main() -> std::io::Result<()> {
     .bind((host, port))?
     .run()
     .await
+}
+
+fn main() -> Result<()> {
+    // TODO: This is unsafe: not sure what to do though -> maybe block the executor and set env
+    // variables before this asyn function is started.
+    // Strange that Rust compiled anyway, without the unsafe block, any idea?
+    unsafe {
+        env::set_var(
+            "RUST_LOG",
+            "fuzon_http=info,actix_web=warn,actix_server=info",
+        );
+    }
+
+    env_logger::init();
+
+    let rt = Runtime::new()?;
+    rt.block_on(async_main())?;
+    Ok(())
 }

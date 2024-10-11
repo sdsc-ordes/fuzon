@@ -66,3 +66,30 @@ pub fn get_cache_path(sources: &Vec<&str>) -> PathBuf {
     return cache_dir.join(&cache_key)
 
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn file_stamp() {
+        let path = "Cargo.toml";
+        let stamp = get_file_stamp(path).unwrap();
+        assert!(stamp.starts_with(path));
+    }
+
+    #[test]
+    fn url_stamp() {
+        let url = "https://www.rust-lang.org/";
+        let stamp = get_url_stamp(url).unwrap();
+        assert!(stamp.starts_with(url));
+    }
+
+    #[test]
+    fn cache_path() {
+        let sources = vec!["Cargo.toml", "https://www.rust-lang.org/"];
+        let path = get_cache_path(&sources);
+        let key = get_cache_key(&sources);
+        assert!(path.ends_with(key));
+    }
+}

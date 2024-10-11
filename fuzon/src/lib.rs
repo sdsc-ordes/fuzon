@@ -161,6 +161,7 @@ pub fn gather_terms(readers: Vec<(impl BufRead, RdfFormat)>) -> impl Iterator<It
 #[cfg(test)]
 mod tests {
     use super::*;
+    use tempfile;
 
     #[test]
     fn matcher_from_source() {
@@ -182,9 +183,9 @@ mod tests {
     fn serde() {
         let source = vec!["../data/test_schema.ttl"];
         let matcher = TermMatcher::from_paths(source).unwrap();
-        let path = Path::new("test_cache");
-        let _ = matcher.dump(path);
-        let loaded = TermMatcher::load(path).unwrap();
+        let out = tempfile::NamedTempFile::new().unwrap();
+        let _ = matcher.dump(&out.path());
+        let loaded = TermMatcher::load(&out.path()).unwrap();
         assert_eq!(matcher, loaded);
     }
 }

@@ -1,18 +1,22 @@
 use core::fmt;
 use std::collections::HashSet;
 use std::fs::File;
+use std::path::Path;
 use std::io::{BufRead, BufReader};
 
 use anyhow::Result;
 use lazy_static::lazy_static;
 use oxrdfio::{RdfFormat, RdfParser};
+use postcard;
 use reqwest::blocking::Client;
 use reqwest::Url;
+use serde::{Deserialize, Serialize};
 
 use rff;
 
 
 pub mod ui;
+pub mod cache;
 
 // HashMap of common annotation properties
 lazy_static! {
@@ -33,7 +37,7 @@ lazy_static! {
     };
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
 pub struct TermMatcher {
     pub terms: Vec<Term>,
 }
@@ -65,9 +69,22 @@ impl TermMatcher {
         let terms: Vec<Term> = gather_terms(readers).collect();
         Ok(TermMatcher { terms })
     }
+
+    pub fn load(path: &Path) -> Result<Self> {
+        let bytes = std::fs::read(path)?;
+        let matcher = postcard::from_bytes(&bytes)?;
+        Ok(matcher)
+    }
+
+    pub fn dump(&self, path: &Path) -> Result<()> {
+        let bytes = postcard::to_allocvec(&self).unwrap();
+        std::fs::write(path, &bytes)?;
+        Ok(())
+    }
 }
 
-#[derive(Debug, Clone)]
+
+#[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
 pub struct Term {
     pub uri: String,
     pub label: String,
@@ -140,3 +157,35 @@ pub fn gather_terms(readers: Vec<(impl BufRead, RdfFormat)>) -> impl Iterator<It
     terms.into_iter()
 }
 
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile;
+
+    #[test]
+    fn matcher_from_source() {
+        let source = vec!["../data/test_schema.ttl"];
+        let matcher = TermMatcher::from_paths(source).unwrap();
+        assert_eq!(matcher.terms.len(), 11);
+    }
+
+    #[test]
+    fn rank_terms() {
+        let source = vec!["../data/test_schema.ttl"];
+        let matcher = TermMatcher::from_paths(source).unwrap();
+        let query = "Person";
+        let ranked = matcher.rank_terms(query);
+        assert_eq!(ranked[0].0.label, "\"Person\"");
+    }
+
+    #[test]
+    fn serde() {
+        let source = vec!["../data/test_schema.ttl"];
+        let matcher = TermMatcher::from_paths(source).unwrap();
+        let out = tempfile::NamedTempFile::new().unwrap();
+        let _ = matcher.dump(&out.path());
+        let loaded = TermMatcher::load(&out.path()).unwrap();
+        assert_eq!(matcher, loaded);
+    }
+}

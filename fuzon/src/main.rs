@@ -1,8 +1,10 @@
+use std::fs;
 use fuzon::ui::{interactive, search};
 
 use anyhow::Result;
 use clap::Parser;
 use fuzon::TermMatcher;
+use fuzon::cache::get_cache_path;
 
 /// fuzzy match terms from ontologies to get their uri
 #[derive(Parser, Debug)]
@@ -18,6 +20,10 @@ struct Args {
     /// Only return the top N results.
     #[clap(short, long)]
     top: Option<usize>,
+
+    /// Do not load from cache.
+    #[clap(short, long, default_value = "false")]
+    no_cache: bool,
 }
 
 fn main() -> Result<()> {
@@ -27,13 +33,34 @@ fn main() -> Result<()> {
         .iter()
         .map(|s| s.as_str())
         .collect();
-    let matcher = TermMatcher::from_paths(sources)?;
 
+    // Attempt to load from cache
+    let matcher: TermMatcher;
+    if !args.no_cache {
+        let cache_path = get_cache_path(
+            &sources
+        );
+        let _ = fs::create_dir_all(cache_path.parent().unwrap());
+        // Cache hit
+        matcher = if let Ok(matcher) = TermMatcher::load(&cache_path) {
+           matcher
+        // Cache miss
+        } else {
+            let matcher =TermMatcher::from_paths(sources)?;
+            matcher.dump(&cache_path)?;
+            matcher 
+        };
+    } else {
+        matcher = TermMatcher::from_paths(sources)?;
+    }
+
+    // Search for query
     if let Some(query) = args.query {
         for (term, score) in search(&matcher, &query, args.top) {
             println!("[{}] {}", score, term)
         }
         return Ok(());
+    // Or interactively trigger search on keystrokes
     } else {
         return interactive(&matcher, args.top);
     }

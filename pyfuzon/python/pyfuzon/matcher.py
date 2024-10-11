@@ -7,6 +7,8 @@ from pyfuzon import Term, score_terms, parse_files, load_terms, dump_terms
 
 @dataclass
 class TermMatcher:
+    """Fuzzy matches terms from RDF terminologies to input queries."""
+
     terms: list[Term]
     
     def top(self, query: str, n: int=5) -> list[Term]:

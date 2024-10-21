@@ -1,10 +1,9 @@
-use std::fs;
 use fuzon::ui::{interactive, search};
+use std::fs;
 
 use anyhow::Result;
 use clap::Parser;
-use fuzon::TermMatcher;
-use fuzon::cache::get_cache_path;
+use fuzon::{cache::get_cache_path, TermMatcher};
 
 /// fuzzy match terms from ontologies to get their uri
 #[derive(Parser, Debug)]
@@ -29,26 +28,21 @@ struct Args {
 fn main() -> Result<()> {
     let args = Args::parse();
 
-    let sources = args.source
-        .iter()
-        .map(|s| s.as_str())
-        .collect();
+    let sources = args.source.iter().map(|s| s.as_str()).collect();
 
     // Attempt to load from cache
     let matcher: TermMatcher;
     if !args.no_cache {
-        let cache_path = get_cache_path(
-            &sources
-        );
+        let cache_path = get_cache_path(&sources)?;
         let _ = fs::create_dir_all(cache_path.parent().unwrap());
         // Cache hit
         matcher = if let Ok(matcher) = TermMatcher::load(&cache_path) {
-           matcher
+            matcher
         // Cache miss
         } else {
-            let matcher =TermMatcher::from_paths(sources)?;
+            let matcher = TermMatcher::from_paths(sources)?;
             matcher.dump(&cache_path)?;
-            matcher 
+            matcher
         };
     } else {
         matcher = TermMatcher::from_paths(sources)?;
@@ -65,8 +59,6 @@ fn main() -> Result<()> {
         return interactive(&matcher, args.top);
     }
 }
-
-
 
 #[cfg(test)]
 mod tests {

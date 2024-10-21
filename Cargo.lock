@@ -1494,9 +1494,9 @@ dependencies = [
 
 [[package]]
 name = "oxrdf"
-version = "0.2.0"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c23ac4556485d4d4c31f3448a7ccc53d2444617a5e46ccc39f2f5a74e28091e"
+checksum = "6b2115dc40840037ba86c494ffa2925ab435ec0c383dcf73d49600c9142db081"
 dependencies = [
  "oxilangtag",
  "oxiri",
@@ -1506,11 +1506,11 @@ dependencies = [
 
 [[package]]
 name = "oxrdfio"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b4706c6af55788842d2db36cff725001f4d3b84882bcccb6c19d798542742cf6"
+checksum = "62b05ae7eeab84240bdf87bc8db8da4622a0ad202375e4de50ce32e97ea4061b"
 dependencies = [
- "oxrdf 0.2.0",
+ "oxrdf 0.2.1",
  "oxrdfxml",
  "oxttl",
  "thiserror",
@@ -1518,27 +1518,27 @@ dependencies = [
 
 [[package]]
 name = "oxrdfxml"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eb88436b3c4375d87d320387f9b6fa84a772ea927ad0a9458fc35780605cda47"
+checksum = "7f7b10f0ba68e0a300346264a97c33ad26d1e16700d481c4809caef26195a04a"
 dependencies = [
  "oxilangtag",
  "oxiri",
- "oxrdf 0.2.0",
+ "oxrdf 0.2.1",
  "quick-xml",
  "thiserror",
 ]
 
 [[package]]
 name = "oxttl"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9795d5819708ef1669906eb96783a1764bf4b283f7615d46f66a798e8101fd3b"
+checksum = "b5ff45d05226b72a41cb43bb5818149be337231c2db7c3501f0f3b1e29977748"
 dependencies = [
  "memchr",
  "oxilangtag",
  "oxiri",
- "oxrdf 0.2.0",
+ "oxrdf 0.2.1",
  "thiserror",
 ]
 
@@ -1680,6 +1680,7 @@ version = "0.22.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "15ee168e30649f7f234c3d49ef5a7a6cbf5134289bc46c29ff3155fa3221c225"
 dependencies = [
+ "anyhow",
  "cfg-if",
  "indoc",
  "libc",

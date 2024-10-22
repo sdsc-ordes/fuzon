@@ -16,8 +16,13 @@ For more information, see: https://github.com/dirs-dev/dirs-rs
 
 from pathlib import Path
 
-from .pyfuzon import get_cache_key as _get_cache_key
-from .pyfuzon import get_cache_path as _get_cache_path
+from .matcher import TermMatcher
+from .pyfuzon import (
+    get_cache_key as _get_cache_key,
+    get_cache_path as _get_cache_path,
+    cache_by_source as _cache_by_source,
+    load_by_source as _load_by_source,
+)
 
 def get_cache_key(sources: list[str]) -> str:
     """Return a deterministic cache key based on a collection of source paths."""
@@ -26,3 +31,12 @@ def get_cache_key(sources: list[str]) -> str:
 def get_cache_path(sources: list[str]) -> Path:
     """Return a full platform-specific cache path based on a collection of source paths."""
     return Path(_get_cache_path(sources))
+
+def cache_by_source(sources: list[str]):
+    """Save each source into an independent TermMatcher cache file."""
+    _cache_by_source(sources)
+
+def load_by_source(sources: list[str]) -> TermMatcher:
+    """Load and combine single-source cache entries into a combined TermMatcher."""
+    terms = _load_by_source(sources)
+    return TermMatcher(terms)

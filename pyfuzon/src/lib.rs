@@ -110,6 +110,28 @@ pub fn get_cache_key(sources: Vec<String>) -> PyResult<String> {
     Ok(cache::get_cache_key(&mut src_ref)?)
 }
 
+/// Save each source in a dedicated TermMatcher cache file.
+#[pyfunction]
+pub fn cache_by_source(sources: Vec<String>) -> PyResult<()> {
+    let src_ref = sources.iter().map(|s| s.as_str()).collect();
+    cache::cache_by_source(src_ref)?;
+
+    Ok(())
+}
+
+/// Load terms from individual TermMatcher cache files for each source.
+#[pyfunction]
+pub fn load_by_source(sources: Vec<String>) -> PyResult<Vec<Term>> {
+    let src_ref = sources.iter().map(|s| s.as_str()).collect();
+    let terms = cache::load_by_source(src_ref)?
+        .terms
+        .into_iter()
+        .map(|t| Term::new(t.uri, t.label))
+        .collect();
+
+    Ok(terms)
+}
+
 #[pymodule]
 fn pyfuzon(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(score_terms, m)?)?;
@@ -118,6 +140,8 @@ fn pyfuzon(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(dump_terms, m)?)?;
     m.add_function(wrap_pyfunction!(get_cache_key, m)?)?;
     m.add_function(wrap_pyfunction!(get_cache_path, m)?)?;
+    m.add_function(wrap_pyfunction!(cache_by_source, m)?)?;
+    m.add_function(wrap_pyfunction!(load_by_source, m)?)?;
     m.add_class::<Term>()?;
 
     Ok(())

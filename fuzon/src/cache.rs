@@ -64,8 +64,8 @@ pub fn get_cache_key(sources: &Vec<&str>) -> Result<String> {
 /// Get the full cross-platform cache path for a collection of source paths.
 pub fn get_cache_path(sources: &Vec<&str>) -> Result<PathBuf> {
     let cache_dir = dirs::cache_dir().unwrap().join("fuzon");
-    let cache_key = get_cache_key(&sources);
-    let cache_path = cache_dir.join(&cache_key?);
+    let cache_key = get_cache_key(&sources)?;
+    let cache_path = cache_dir.join(&cache_key);
 
     return Ok(cache_path);
 }

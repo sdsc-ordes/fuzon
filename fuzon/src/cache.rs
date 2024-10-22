@@ -34,8 +34,7 @@ pub fn get_file_stamp(path: &str) -> Result<String> {
 /// Generate a fixed cache key based on a collection of source paths.
 /// Each path is converted to a stamp in the format "{path}-{fingerprint}-{modified-date}".
 /// Stamps are then concatenated and hash of this concatenation is returned.
-pub fn get_cache_key(sources: &Vec<&str>) -> Result<String> {
-    let mut paths = sources.clone();
+pub fn get_cache_key(paths: Vec<&str>) -> Result<String> {
     paths.sort();
 
     // Craft all stamps and concatenate them

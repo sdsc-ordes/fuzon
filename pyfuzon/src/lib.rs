@@ -74,7 +74,7 @@ pub fn load_terms(path: PathBuf) -> PyResult<Vec<Term>> {
         .map(|t| Term::new(t.uri, t.label))
         .collect();
 
-    return Ok(terms);
+    Ok(terms)
 }
 
 /// Serialize the provided terms as a fuzon TermMatcher.
@@ -90,7 +90,7 @@ pub fn dump_terms(terms: Vec<Term>, path: PathBuf) -> PyResult<()> {
         .collect();
     matcher.dump(&path).unwrap();
 
-    return Ok(());
+    Ok(())
 }
 
 /// Get a full platform-specific cache path based on input collection of sources.

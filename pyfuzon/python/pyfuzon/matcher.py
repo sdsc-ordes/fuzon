@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Self
+
 from dataclasses import dataclass
 
 from pyfuzon import Term, score_terms, parse_files, load_terms, dump_terms
@@ -10,7 +11,7 @@ class TermMatcher:
     """Fuzzy matches terms from RDF terminologies to input queries."""
 
     terms: list[Term]
-    
+
     def top(self, query: str, n: int=5) -> list[Term]:
         """Return the n terms most similar to input query."""
         return self.rank(query)[:n]
@@ -19,7 +20,7 @@ class TermMatcher:
         """Return all terms, ranked by query similarity."""
         scores = self.score(query)
         ranks = [
-            i[0] for i in 
+            i[0] for i in
             sorted(enumerate(scores), key=lambda x:x[1], reverse=True)
         ]
         return [self.terms[rank] for rank in ranks]
@@ -45,4 +46,3 @@ class TermMatcher:
     def dump(self, path):
         """Serialize to disk."""
         dump_terms(self.terms, path)
-

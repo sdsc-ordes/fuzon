@@ -34,12 +34,12 @@ pub fn get_file_stamp(path: &str) -> Result<String> {
 /// Generate a fixed cache key based on a collection of source paths.
 /// Each path is converted to a stamp in the format "{path}-{fingerprint}-{modified-date}".
 /// Stamps are then concatenated and hash of this concatenation is returned.
-pub fn get_cache_key(paths: Vec<&str>) -> Result<String> {
+pub fn get_cache_key(paths: &mut Vec<&str>) -> Result<String> {
     paths.sort();
 
     // Craft all stamps and concatenate them
     let mut concat = String::new();
-    for path in paths.into_iter() {
+    for path in paths.iter() {
         if !PathBuf::from(path).exists() && Url::parse(path).is_err() {
             return Err(anyhow::anyhow!("Invalid path: {}", path));
         }
@@ -61,9 +61,9 @@ pub fn get_cache_key(paths: Vec<&str>) -> Result<String> {
 }
 
 /// Get the full cross-platform cache path for a collection of source paths.
-pub fn get_cache_path(sources: &Vec<&str>) -> Result<PathBuf> {
+pub fn get_cache_path(sources: &mut Vec<&str>) -> Result<PathBuf> {
     let cache_dir = dirs::cache_dir().unwrap().join("fuzon");
-    let cache_key = get_cache_key(&sources)?;
+    let cache_key = get_cache_key(sources)?;
     let cache_path = cache_dir.join(&cache_key);
 
     return Ok(cache_path);
@@ -89,9 +89,9 @@ mod tests {
 
     #[test]
     fn cache_path() {
-        let sources = vec!["Cargo.toml", "https://www.rust-lang.org/"];
-        let path = get_cache_path(&sources).unwrap();
-        let key = get_cache_key(&sources).unwrap();
+        let mut sources = vec!["Cargo.toml", "https://www.rust-lang.org/"];
+        let path = get_cache_path(&mut sources.clone()).unwrap();
+        let key = get_cache_key(&mut sources).unwrap();
         assert!(path.ends_with(key));
     }
 }

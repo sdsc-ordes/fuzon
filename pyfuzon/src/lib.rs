@@ -1,7 +1,6 @@
-use anyhow::Result;
 use core::fmt;
 use pyo3::prelude::*;
-use std::{io::BufRead, path::PathBuf};
+use std::path::PathBuf;
 
 use fuzon::{cache, gather_terms, get_source, TermMatcher};
 use rff;
@@ -97,8 +96,8 @@ pub fn dump_terms(terms: Vec<Term>, path: PathBuf) -> PyResult<()> {
 /// Get a full platform-specific cache path based on input collection of sources.
 #[pyfunction]
 pub fn get_cache_path(sources: Vec<String>) -> PyResult<String> {
-    let src_ref = sources.iter().map(|s| s.as_str()).collect();
-    let cache_path = cache::get_cache_path(&src_ref)?;
+    let mut src_ref = sources.iter().map(|s| s.as_str()).collect();
+    let cache_path = cache::get_cache_path(&mut src_ref)?;
 
     return Ok(cache_path.to_str().unwrap().to_owned());
 }
@@ -106,9 +105,9 @@ pub fn get_cache_path(sources: Vec<String>) -> PyResult<String> {
 /// Get a deterministic cache key based on input collection of sources
 #[pyfunction]
 pub fn get_cache_key(sources: Vec<String>) -> PyResult<String> {
-    let src_ref = sources.iter().map(|s| s.as_str()).collect();
+    let mut src_ref = sources.iter().map(|s| s.as_str()).collect();
 
-    return Ok(cache::get_cache_key(&src_ref)?);
+    return Ok(cache::get_cache_key(&mut src_ref)?);
 }
 
 #[pymodule]

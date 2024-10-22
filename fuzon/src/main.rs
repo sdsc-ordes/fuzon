@@ -28,12 +28,12 @@ struct Args {
 fn main() -> Result<()> {
     let args = Args::parse();
 
-    let sources = args.source.iter().map(|s| s.as_str()).collect();
+    let mut sources = args.source.iter().map(|s| s.as_str()).collect();
 
     // Attempt to load from cache
     let matcher: TermMatcher;
     if !args.no_cache {
-        let cache_path = get_cache_path(&sources)?;
+        let cache_path = get_cache_path(&mut sources)?;
         let _ = fs::create_dir_all(cache_path.parent().unwrap());
         // Cache hit
         matcher = if let Ok(matcher) = TermMatcher::load(&cache_path) {
@@ -61,8 +61,4 @@ fn main() -> Result<()> {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-
-    fn match_urls() {}
-}
+mod tests {}

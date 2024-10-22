@@ -69,12 +69,9 @@ pub fn get_cache_path(sources: &mut Vec<&str>) -> Result<PathBuf> {
 
 /// Save each source into an independent TermMatcher cache file.
 pub fn cache_by_source(sources: Vec<&str>) -> Result<()> {
-    let mut matcher: TermMatcher;
-    let mut cache_path: PathBuf;
-
     for source in sources {
-        matcher = TermMatcher::from_paths(vec![source])?;
-        cache_path = get_cache_path(&mut vec![source])?;
+        let matcher = TermMatcher::from_paths(vec![source])?;
+        let cache_path = get_cache_path(&mut vec![source])?;
         matcher.dump(&cache_path)?;
     }
 

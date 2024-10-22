@@ -2,7 +2,9 @@ use core::fmt;
 use std::{
     collections::HashSet,
     fs::File,
+    hash::Hash,
     io::{BufRead, BufReader},
+    ops::Add,
     path::Path,
 };
 
@@ -40,6 +42,23 @@ lazy_static! {
 #[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
 pub struct TermMatcher {
     pub terms: Vec<Term>,
+}
+
+impl Add for TermMatcher {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        // union of terms
+        let terms = self
+            .terms
+            .into_iter()
+            .chain(rhs.terms.into_iter())
+            .collect::<HashSet<Term>>()
+            .into_iter()
+            .collect();
+
+        TermMatcher { terms }
+    }
 }
 
 impl TermMatcher {
@@ -86,7 +105,7 @@ impl TermMatcher {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, Eq, Hash, PartialEq)]
 pub struct Term {
     pub uri: String,
     pub label: String,

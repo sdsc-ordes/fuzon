@@ -7,6 +7,8 @@ use std::{
 use anyhow::Result;
 use reqwest::{blocking::Client, Url};
 
+use crate::TermMatcher;
+
 /// Requests headers with redirection to create a stamp for the URL
 /// consisting of the last modified date and/or ETag.
 pub fn get_url_stamp(url: &str) -> Result<String> {
@@ -63,6 +65,32 @@ pub fn get_cache_path(sources: &mut Vec<&str>) -> Result<PathBuf> {
     let cache_path = cache_dir.join(&cache_key);
 
     Ok(cache_path)
+}
+
+/// Save each source into an independent TermMatcher cache file.
+pub fn cache_by_source(sources: Vec<&str>) -> Result<()> {
+    let mut matcher: TermMatcher;
+    let mut cache_path: PathBuf;
+
+    for source in sources {
+        matcher = TermMatcher::from_paths(vec![source])?;
+        cache_path = get_cache_path(&mut vec![source])?;
+        matcher.dump(&cache_path)?;
+    }
+
+    Ok(())
+}
+
+/// Load and combine single-source cache entries into a combined TermMatcher.
+pub fn load_by_source(sources: Vec<&str>) -> Result<TermMatcher> {
+    let mut matcher: TermMatcher = TermMatcher { terms: Vec::new() };
+
+    for source in sources {
+        let cache_path = get_cache_path(&mut vec![source])?;
+        matcher = matcher + TermMatcher::load(&cache_path)?;
+    }
+
+    Ok(matcher)
 }
 
 #[cfg(test)]

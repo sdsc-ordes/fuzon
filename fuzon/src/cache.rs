@@ -40,14 +40,12 @@ pub fn get_cache_key(paths: &mut Vec<&str>) -> Result<String> {
     // Craft all stamps and concatenate them
     let mut concat = String::new();
     for path in paths.iter() {
-        if !PathBuf::from(path).exists() && Url::parse(path).is_err() {
-            return Err(anyhow::anyhow!("Invalid path: {}", path));
-        }
-
         let stamp = if let Ok(_) = Url::parse(path) {
             get_url_stamp(&path)?
-        } else {
+        } else if PathBuf::from(path).exists() {
             get_file_stamp(&path)?
+        } else {
+            return Err(anyhow::anyhow!("Invalid path: {}", path));
         };
         concat.push_str(&stamp);
     }

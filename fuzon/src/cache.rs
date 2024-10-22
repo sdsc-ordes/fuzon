@@ -18,7 +18,7 @@ pub fn get_url_stamp(url: &str) -> Result<String> {
         .get("Last-Modified")
         .map_or("", |v| v.to_str().unwrap());
 
-    return Ok(format!("{}-{}-{}", url, etag, last_modified));
+    Ok(format!("{}-{}-{}", url, etag, last_modified))
 }
 
 /// Crafts a file metadata to create a stamp consisting of the file path,
@@ -28,7 +28,7 @@ pub fn get_file_stamp(path: &str) -> Result<String> {
     let size = metadata.len();
     let modified = metadata.modified()?;
 
-    return Ok(format!("{}-{}-{:?}", path, size, modified));
+    Ok(format!("{}-{}-{:?}", path, size, modified))
 }
 
 /// Generate a fixed cache key based on a collection of source paths.
@@ -53,7 +53,7 @@ pub fn get_cache_key(paths: &mut Vec<&str>) -> Result<String> {
     // Hash the concatenated stamps
     let key = state.finish();
 
-    return Ok(key.to_string());
+    Ok(key.to_string())
 }
 
 /// Get the full cross-platform cache path for a collection of source paths.
@@ -62,7 +62,7 @@ pub fn get_cache_path(sources: &mut Vec<&str>) -> Result<PathBuf> {
     let cache_key = get_cache_key(sources)?;
     let cache_path = cache_dir.join(&cache_key);
 
-    return Ok(cache_path);
+    Ok(cache_path)
 }
 
 #[cfg(test)]

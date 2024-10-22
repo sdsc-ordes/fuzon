@@ -53,10 +53,10 @@ fn main() -> Result<()> {
         for (term, score) in search(&matcher, &query, args.top) {
             println!("[{}] {}", score, term)
         }
-        return Ok(());
+        Ok(())
     // Or interactively trigger search on keystrokes
     } else {
-        return interactive(&matcher, args.top);
+        interactive(&matcher, args.top)
     }
 }
 

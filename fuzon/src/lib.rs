@@ -1,22 +1,22 @@
 use core::fmt;
-use std::collections::HashSet;
-use std::fs::File;
-use std::path::Path;
-use std::io::{BufRead, BufReader};
+use std::{
+    collections::HashSet,
+    fs::File,
+    io::{BufRead, BufReader},
+    path::Path,
+};
 
 use anyhow::Result;
 use lazy_static::lazy_static;
 use oxrdfio::{RdfFormat, RdfParser};
 use postcard;
-use reqwest::blocking::Client;
-use reqwest::Url;
+use reqwest::{blocking::Client, Url};
 use serde::{Deserialize, Serialize};
 
 use rff;
 
-
-pub mod ui;
 pub mod cache;
+pub mod ui;
 
 // HashMap of common annotation properties
 lazy_static! {
@@ -61,18 +61,21 @@ impl TermMatcher {
     }
     pub fn from_readers(readers: Vec<(impl BufRead, RdfFormat)>) -> Self {
         let terms = gather_terms(readers).collect();
+
         TermMatcher { terms }
     }
 
     pub fn from_paths(paths: Vec<&str>) -> Result<Self> {
         let readers = paths.into_iter().map(|p| get_source(p).unwrap()).collect();
         let terms: Vec<Term> = gather_terms(readers).collect();
+
         Ok(TermMatcher { terms })
     }
 
     pub fn load(path: &Path) -> Result<Self> {
         let bytes = std::fs::read(path)?;
         let matcher = postcard::from_bytes(&bytes)?;
+
         Ok(matcher)
     }
 
@@ -82,7 +85,6 @@ impl TermMatcher {
         Ok(())
     }
 }
-
 
 #[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
 pub struct Term {
@@ -134,9 +136,8 @@ pub fn rank_terms<'a>(query: &str, terms: Vec<&'a Term>) -> Vec<(&'a Term, f64)>
         .collect();
     ranked.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
 
-    return ranked;
+    ranked
 }
-
 
 // Load URI-label pairs from all sources.
 pub fn gather_terms(readers: Vec<(impl BufRead, RdfFormat)>) -> impl Iterator<Item = Term> {
@@ -154,9 +155,9 @@ pub fn gather_terms(readers: Vec<(impl BufRead, RdfFormat)>) -> impl Iterator<It
             .collect();
         terms.append(&mut out);
     }
+
     terms.into_iter()
 }
-
 
 #[cfg(test)]
 mod tests {

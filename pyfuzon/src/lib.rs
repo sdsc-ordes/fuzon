@@ -50,7 +50,7 @@ pub fn score_terms(query: String, terms: Vec<Term>) -> PyResult<Vec<f64>> {
         })
         .collect();
 
-    return Ok(scores);
+    Ok(scores)
 }
 
 /// Parse and filter RDF files to gather the union of all terms.
@@ -61,7 +61,7 @@ pub fn parse_files(paths: Vec<String>) -> PyResult<Vec<Term>> {
         .map(|t| Term::new(t.uri, t.label))
         .collect();
 
-    return Ok(terms);
+    Ok(terms)
 }
 
 /// Extract terms from a serialized fuzon TermMatcher.
@@ -88,7 +88,7 @@ pub fn dump_terms(terms: Vec<Term>, path: PathBuf) -> PyResult<()> {
             label: t.label,
         })
         .collect();
-    matcher.dump(&path).unwrap();
+    matcher.dump(&path)?;
 
     Ok(())
 }
@@ -99,7 +99,7 @@ pub fn get_cache_path(sources: Vec<String>) -> PyResult<String> {
     let mut src_ref = sources.iter().map(|s| s.as_str()).collect();
     let cache_path = cache::get_cache_path(&mut src_ref)?;
 
-    return Ok(cache_path.to_str().unwrap().to_owned());
+    Ok(cache_path.to_str().unwrap().to_owned())
 }
 
 /// Get a deterministic cache key based on input collection of sources
@@ -107,7 +107,7 @@ pub fn get_cache_path(sources: Vec<String>) -> PyResult<String> {
 pub fn get_cache_key(sources: Vec<String>) -> PyResult<String> {
     let mut src_ref = sources.iter().map(|s| s.as_str()).collect();
 
-    return Ok(cache::get_cache_key(&mut src_ref)?);
+    Ok(cache::get_cache_key(&mut src_ref)?)
 }
 
 #[pymodule]
@@ -119,5 +119,6 @@ fn pyfuzon(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(get_cache_key, m)?)?;
     m.add_function(wrap_pyfunction!(get_cache_path, m)?)?;
     m.add_class::<Term>()?;
+
     Ok(())
 }

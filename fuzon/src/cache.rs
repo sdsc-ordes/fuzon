@@ -37,8 +37,8 @@ pub fn get_file_stamp(path: &str) -> Result<String> {
 pub fn get_cache_key(paths: &mut Vec<&str>) -> Result<String> {
     paths.sort();
 
-    // Craft all stamps and concatenate them
-    let mut concat = String::new();
+    // Craft all stamps and concatenate them into the hasher
+    let mut state = DefaultHasher::new();
     for path in paths.iter() {
         let stamp = if let Ok(_) = Url::parse(path) {
             get_url_stamp(&path)?
@@ -47,12 +47,10 @@ pub fn get_cache_key(paths: &mut Vec<&str>) -> Result<String> {
         } else {
             return Err(anyhow::anyhow!("Invalid path: {}", path));
         };
-        concat.push_str(&stamp);
+        stamp.hash(&mut state);
     }
 
     // Hash the concatenated stamps
-    let mut state = DefaultHasher::new();
-    concat.hash(&mut state);
     let key = state.finish();
 
     return Ok(key.to_string());

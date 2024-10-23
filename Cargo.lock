@@ -876,7 +876,7 @@ dependencies = [
 
 [[package]]
 name = "fuzon"
-version = "0.2.4"
+version = "0.2.5"
 dependencies = [
  "anyhow",
  "clap 4.5.18",
@@ -896,7 +896,7 @@ dependencies = [
 
 [[package]]
 name = "fuzon-http"
-version = "0.2.4"
+version = "0.2.5"
 dependencies = [
  "actix-web",
  "clap 4.5.18",
@@ -1649,7 +1649,7 @@ dependencies = [
 
 [[package]]
 name = "pyfuzon"
-version = "0.2.4"
+version = "0.2.5"
 dependencies = [
  "anyhow",
  "clap 4.5.18",

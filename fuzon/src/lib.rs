@@ -11,6 +11,7 @@ use std::{
 use anyhow::Result;
 use lazy_static::lazy_static;
 use oxrdfio::{RdfFormat, RdfParser};
+use oxrdf::Subject;
 use postcard;
 use reqwest::{blocking::Client, Url};
 use serde::{Deserialize, Serialize};
@@ -164,8 +165,10 @@ pub fn gather_terms(readers: Vec<(impl BufRead, RdfFormat)>) -> impl Iterator<It
     let mut terms = Vec::new();
     for (reader, format) in readers {
         let parser = RdfParser::from_format(format).for_reader(reader);
+        // Drop blank nodes and filter by common annotation properties
         let mut out = parser
             .map(|t| t.expect("Error parsing RDF"))
+            .filter(|t| if let Subject::NamedNode(_) = t.subject {true} else {false})
             .filter(|t| ANNOTATIONS.contains(t.predicate.as_str()))
             .map(|t| Term {
                 uri: t.subject.to_string(),

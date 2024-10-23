@@ -1,6 +1,6 @@
 [package]
 name = "fuzon"
-version = "0.2.4"
+version = "0.2.5"
 edition = "2021"
 
 [lib]
@@ -12,7 +12,7 @@ clap = { version = "4.5.16", features = ["derive"] }
 crossterm = "0.28.1"
 dirs = "5.0.1"
 lazy_static = "1.5.0"
-oxrdf = "0.1.7"
+oxrdf = "0.2.1"
 oxrdfio = "0.1.0"
 oxttl = "0.1.0-rc.1"
 postcard = { version = "1.0.10", features = ["alloc"] }

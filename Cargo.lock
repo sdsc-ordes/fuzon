@@ -876,14 +876,14 @@ dependencies = [
 
 [[package]]
 name = "fuzon"
-version = "0.2.4"
+version = "0.2.5"
 dependencies = [
  "anyhow",
  "clap 4.5.18",
  "crossterm",
  "dirs",
  "lazy_static",
- "oxrdf 0.1.7",
+ "oxrdf",
  "oxrdfio",
  "oxttl",
  "postcard",
@@ -896,7 +896,7 @@ dependencies = [
 
 [[package]]
 name = "fuzon-http"
-version = "0.2.4"
+version = "0.2.5"
 dependencies = [
  "actix-web",
  "clap 4.5.18",
@@ -1483,17 +1483,6 @@ checksum = "85d9439ace287894b327bd5522d4f3d813311c719143a1af37826c6a12f808d0"
 
 [[package]]
 name = "oxrdf"
-version = "0.1.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "309287c8a757e25e06a6156acbd73770bac3e319123f5b4bc0a42e232caf97a5"
-dependencies = [
- "oxilangtag",
- "oxiri",
- "rand",
-]
-
-[[package]]
-name = "oxrdf"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6b2115dc40840037ba86c494ffa2925ab435ec0c383dcf73d49600c9142db081"
@@ -1510,7 +1499,7 @@ version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "62b05ae7eeab84240bdf87bc8db8da4622a0ad202375e4de50ce32e97ea4061b"
 dependencies = [
- "oxrdf 0.2.1",
+ "oxrdf",
  "oxrdfxml",
  "oxttl",
  "thiserror",
@@ -1524,7 +1513,7 @@ checksum = "7f7b10f0ba68e0a300346264a97c33ad26d1e16700d481c4809caef26195a04a"
 dependencies = [
  "oxilangtag",
  "oxiri",
- "oxrdf 0.2.1",
+ "oxrdf",
  "quick-xml",
  "thiserror",
 ]
@@ -1538,7 +1527,7 @@ dependencies = [
  "memchr",
  "oxilangtag",
  "oxiri",
- "oxrdf 0.2.1",
+ "oxrdf",
  "thiserror",
 ]
 
@@ -1660,14 +1649,14 @@ dependencies = [
 
 [[package]]
 name = "pyfuzon"
-version = "0.2.4"
+version = "0.2.5"
 dependencies = [
  "anyhow",
  "clap 4.5.18",
  "crossterm",
  "fuzon",
  "lazy_static",
- "oxrdf 0.1.7",
+ "oxrdf",
  "oxttl",
  "pyo3",
  "ratatui",

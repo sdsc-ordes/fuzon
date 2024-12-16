@@ -1,34 +1,30 @@
+use crate::api::{AppState, list_collections, top_codes};
 use std::collections::HashMap;
-use actix_web::{get, middleware, web, App, HttpServer, Responder, Result};
+use actix_web::{
+    middleware::Logger,
+    web::{block, Data},
+    App,
+    HttpServer,
+};
+use apistos::app::{BuildConfig, OpenApiWrapper};
+use apistos::info::Info;
+use apistos::spec::Spec;
+use apistos::web::{
+    get,
+    resource,
+    scope,
+};
+use apistos::ScalarConfig;
 use clap::Parser;
 use fuzon::TermMatcher;
 use log::info;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use serde_json;
 use std::env;
 use std::sync::Arc;
 use std::fs::File;
 
-// URL query parameters when requesting matching codes
-#[derive(Debug, Deserialize)]
-pub struct CodeRequest {
-    query: String,
-    collection: String,
-    top: usize,
-}
-
-// Response model containing matching codes
-#[derive(Debug, Serialize)]
-pub struct CodeMatch {
-    label: String,
-    uri: String,
-    score: Option<f64>,
-}
-
-#[derive(Debug, Serialize)]
-pub struct MatchResponse {
-    codes: Vec<CodeMatch>,
-}
+mod api;
 
 // Config file structure
 # [derive(Clone, Debug, Deserialize)]
@@ -38,11 +34,6 @@ struct Config {
     collections: HashMap<String, Vec<String>>,
 }
 
-// Shared app state built from config and used by services
-#[derive(Clone, Debug)]
-struct AppState {
-    collections: Arc<HashMap<String, TermMatcher>>,
-}
 
 impl AppState {
     fn from_config(data: Config) -> Self {
@@ -64,33 +55,6 @@ impl AppState {
 }
 
 
-// list collections: /list
-#[get("/list")]
-async fn list(data: web::Data<AppState>) -> impl Responder {
-    let mut response = HashMap::new();
-    let collections : Vec<String> = data.collections.keys().cloned().collect();
-    response.insert("collections".to_string(), collections);
-
-    web::Json(response)
-
-}
-
-// Top matching codes from collection for query: /top?collection={collection}&query={foobar}&top={10}
-#[get("/top")]
-async fn top(data: web::Data<AppState>, req: web::Query<CodeRequest>) -> Result<impl Responder> {
-
-    let top_terms: Vec<CodeMatch> = data.collections
-        .get(&req.collection)
-        .expect(&format!("Collection not found: {}", req.collection))
-        .top_terms(&req.query, req.top)
-        .into_iter()
-        .map(|t| CodeMatch {
-            label: t.label.clone(), uri: t.uri.clone(), score: None
-        })
-        .collect();
-
-    Ok(web::Json(MatchResponse{ codes: top_terms }))
-}
 
 /// http server to serve the fuzon terminology matching api
 #[derive(Parser, Debug)]
@@ -115,18 +79,37 @@ async fn main() -> std::io::Result<()> {
     let host = config.host.clone();
     let port = config.port as u16;
 
-    let data = web::block(move || 
+    let data = block(move || 
         AppState::from_config(config)
     )
         .await
         .expect("Failed to initialize state from config.");
 
     HttpServer::new(move || {
+        let spec = Spec {
+            info: Info {
+                title: "Fuzon API".to_string(),
+                version: "0.3.0".to_string(),
+                description: Some("API for fuzzy terminology matching.".to_string()),
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+
         App::new()
-            .wrap(middleware::Logger::default())
-            .app_data(web::Data::new(data.clone()))
-            .service(list)
-            .service(top)
+            .document(spec)
+            .wrap(Logger::default())
+            .app_data(Data::new(data.clone()))
+            .service(resource("/collections").route(get().to(list_collections)))
+            .service(
+                scope("/codes")
+                    .service(resource("/top").route(get().to(top_codes)))
+            )
+            .build_with(
+                "/openapi.json",
+                BuildConfig::default()
+                    .with(ScalarConfig::new(&"/")),
+            )
     })
     .bind((host, port))?
     .run()

@@ -1,6 +1,6 @@
 [package]
 name = "fuzon-http"
-version = "0.2.5"
+version = "0.3.0"
 license.workspace = true
 edition.workspace = true
 
@@ -10,7 +10,7 @@ apistos = { version = "0.4.1", features = ["scalar"] }
 apistos-schemars = "0.8.21"
 clap = { version = "4.5.18", features = ["derive"] }
 env_logger = "0.11.5"
-fuzon = { version = "0.2.5", path = "../fuzon" }
+fuzon = { version = "0.3.0", path = "../fuzon" }
 log = "0.4.22"
 schemars = "0.8.21"
 serde = { version = "1.0.210", features = ["derive"] }

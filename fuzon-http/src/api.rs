@@ -18,7 +18,7 @@ pub struct CodeRequest {
     /// Target collection on which to perform matching.
     collection: String,
     /// Number of top matches to return.
-    top: usize,
+    num: usize,
 }
 
 /// Response model containing a single matched code.
@@ -66,7 +66,7 @@ pub(crate) async fn list_collections(data: Data<AppState>) -> Result<Json<Collec
 
 }
 
-// Top matching codes from collection for query: /top?collection={collection}&query={foobar}&top={10}
+// Top matching codes from collection for query: /top?collection={collection}&query={foobar}&num={10}
 #[api_operation(
     tag = "codes",
     summary = "Top N codes.",
@@ -79,7 +79,7 @@ pub(crate) async fn top_codes(data: Data<AppState>, req: Query<CodeRequest>) -> 
     let top_terms: Vec<CodeMatch> = data.collections
         .get(&req.collection)
         .expect(&format!("Collection not found: {}", req.collection))
-        .top_terms(&req.query, req.top)
+        .top_terms(&req.query, req.num)
         .into_iter()
         .map(|t| CodeMatch {
             label: t.label.clone(), uri: t.uri.clone(), score: None

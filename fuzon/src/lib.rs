@@ -172,7 +172,7 @@ pub fn gather_terms(readers: Vec<(impl BufRead, RdfFormat)>) -> impl Iterator<It
             .filter(|t| ANNOTATIONS.contains(t.predicate.as_str()))
             .map(|t| Term {
                 uri: t.subject.to_string(),
-                label: t.object.to_string(),
+                label: t.object.to_string().replace("\"", ""),
             })
             .collect();
         terms.append(&mut out);
@@ -199,7 +199,7 @@ mod tests {
         let matcher = TermMatcher::from_paths(source).unwrap();
         let query = "Person";
         let ranked = matcher.rank_terms(query);
-        assert_eq!(ranked[0].0.label, "\"Person\"");
+        assert_eq!(ranked[0].0.label, "Person");
     }
 
     #[test]

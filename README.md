@@ -21,7 +21,9 @@ fuzon helps you quickly find relevant entities (URIs) based on text. It does so 
 
 The goal of fuzon is to accelerate exploration of complex ontologies or terminologies to make semantic data more accessible to users. It can be used directly as a command line tool, embedded as a webserver, or integrated into other tools as a (rust or python) library.
 
-[![asciicast](./docs/img/fuzon-cli.gif)](https://asciinema.org/a/rg5bfeXmKrXjwNuLCUUnmttpL)
+<a href="https://asciinema.org/a/rg5bfeXmKrXjwNuLCUUnmttpL">
+  <img src="./docs/img/fuzon-cli.gif" style="max-width: 80%; height: auto;" />
+</a>
 *click to play on asciinema*
 
 ## Under the Hood

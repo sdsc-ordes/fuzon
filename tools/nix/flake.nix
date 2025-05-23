@@ -66,6 +66,8 @@
           findutils
           coreutils
           bash
+          openssl
+          pkg-config
           zsh
           curl
           git

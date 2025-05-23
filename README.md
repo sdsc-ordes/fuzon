@@ -1,11 +1,42 @@
+<p align="center">
+  <img src="./docs/img/fuzon.svg" alt="fuzon logo" width="250">
+</p>
+
+<p align="center">
+</p>
+<p align="center">
+  <a href="https://github.com/sdsc-ordes/fuzon/releases/latest">
+    <img src="https://img.shields.io/github/release/sdsc-ordes/fuzon.svg?style=for-the-badge" alt="Current Release label" /></a>
+  <a href="https://github.com/sdsc-ordes/fuzon/actions/workflows/maturin.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/sdsc-ordes/fuzon/maturin.yaml?label=tests&style=for-the-badge" alt="Test Status label" /></a>
+  <a href="https://sdsc-ordes.github.io/modos-api">
+    <img src="https://img.shields.io/website?url=https%3A%2F%2Fsdsc-ordes.github.io%2Ffuzon&up_message=online&up_color=blue&down_message=offline&style=for-the-badge&label=docs" alt="Documentation website" /></a>
+  <a href="http://www.apache.org/licenses/LICENSE-2.0.html">
+    <img src="https://img.shields.io/badge/LICENSE-Apache2.0-ff69b4.svg?style=for-the-badge" alt="License label" /></a>
+</p>
+
 # fuzon
 
-> [!WARNING]
-> This repository is a prototype and not yet in a usable state.
+fuzon helps you quickly find relevant entities (URIs) based on text. It does so by fuzzy matching inputs against the annotations attached to concepts in an RDF graph, allowing for partial matches and typos.
 
-fuzon allows to fuzzy search entities in rdf knowledge graphs based on their labels. It is a wrapper around the [rff](https://github.com/stewart/rff) fuzzy finder. Example use cases of this tool include finding codes based on their label in a given source ontology. It prefetches URI - label pairs in the back-end, by parsing source ontologies (either from a local file or a URL). This allows for highly performant fuzzy searches, with near-instant feedback to use in "auto-complete" interfaces.
+The goal of fuzon is to accelerate exploration of complex ontologies or terminologies to make semantic data more accessible to users. It can be used directly as a command line too, embedded as a webserver, or integrated into other tools as a (rust or python) library.
 
-## installation
+
+## Principles 
+
+fuzon is built around the [rff](https://github.com/stewart/rff) fuzzy finder which itself uses the [algorithm from fzy](https://github.com/jhawthorn/fzy/blob/master/ALGORITHM.md) a variant of [Needleman-Wunsch](https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm). In addition, fuzon prefetches URI - label pairs by parsing source ontologies (either from a local file or a URL). This allows for highly performant fuzzy searches, with near-instant feedback to use in "auto-complete" interfaces. Previously loaded ontologies are also cached to speed-up subsequent runs.
+
+## Documentation
+
+Installation and usage instructions are available for the individual crates:
+
+* [:crab: Rust command line tool and library](./fuzon/README.md)
+* [:snake: Python library](./pyfuzon/README.md)
+* [:spider: Web server](./fuzon-http/README.md)
+
+## Installation
+
+### Command Line Tool
 
 The rust crate can be installed by cloning the repo and building locally:
 
@@ -17,15 +48,19 @@ cargo build --release
 ./target/release/fuzon --help
 ```
 
-The python package is distributed on PyPI and can be installed with:
+### Web server
 
 ```shell
-pip install pyfuzon
+git clone https://github.com/sdsc-ordes/fuzon
+cd fuzon
+cargo build --release
+
+./target/release/fuzon-http --config ./fuzon-http/config/example.json
 ```
 
-## usage
+## Usage
 
-### command line interface
+### Command Line Interface
 
 To filter the top 3 matches in a file non-interactively:
 
@@ -35,7 +70,7 @@ $ fuzon -q 'aspirin' --top 3 -s onto1.ttl -s onto2.ttl
 
 Running fuzon without a query will start an interactive prompt to browse the input ontologies.
 
-### rust library
+### Rust Library
 ```rust
 use fuzon;
 let onto1 = "./onto1.ttl".to_string()
@@ -45,19 +80,7 @@ let matcher = TermMatcher::from_files(vec![onto1, onto2])
 matcher.rank_terms("some query")
 ```
 
-### python package
-
-```python
-from pyfuzon.matcher import TermMatcher
-
-matcher = TermMatcher.from_files("https://example.org/onto1.ttl", "/data/onto2.ttl")
-matcher.terms #accesses the list of terms loaded from input files
-matcher.score("query") # returns the match score of each term for the input query.
-matcher.rank("query") # returns the list of terms sorted by similarity with the query.
-matcher.top("query", 5) # shows top 5 most similar results (sorted).
-```
-
-## development
+## Development
 
 A nix dev shell with all build dependencies is provided.
 Assuming just and nix are installed on the machine, you can enter the shell with:

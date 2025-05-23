@@ -14,3 +14,4 @@ runs:
       with:
         github_access_token: ${{ inputs.github-token }}
     - run: just develop-nix
+      shell: bash

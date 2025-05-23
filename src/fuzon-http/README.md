@@ -27,11 +27,13 @@ Start the server with:
 ../target/release/fuzon-http --config config/example.json
 ```
 
-Fuzzy matching queries should use `GET /top?collection={collection}&top={top}&query={query}`.
+Once the server is started, it exposes an interactive openapi documentation at `http://localhost:8080` by default. Explore it from your browser!
+
+Fuzzy matching queries should use `GET /codes/top?collection={collection}&num={top}&query={query}`.
 
 ```shell
 # example
-➜ curl -s 'http://localhost:8080/codes/top?collection=cell_type&top=3&query=kocyte&num=3' | jq
+➜ curl -s 'http://localhost:8080/codes/top?collection=cell_type&query=kocyte&num=3' | jq
 
 {
   "codes": [
@@ -59,7 +61,7 @@ To discover available collections, use `GET /list`.
 
 ```shell
 # example
-$ curl 'http://localhost:8080/list'
+$ curl 'http://localhost:8080/collections'
 {
   "collections": ["cell_type","source_material","taxon_id"]
 }

@@ -30,9 +30,9 @@ fuzon is built around the [rff](https://github.com/stewart/rff) fuzzy finder whi
 
 Installation and usage instructions are available for the individual crates:
 
-* [:crab: Rust command line tool and library](./fuzon/README.md)
-* [:snake: Python library](./pyfuzon/README.md)
-* [:spider: Web server](./fuzon-http/README.md)
+* [:crab: Rust command line tool and library](./src/fuzon/README.md)
+* [:snake: Python library](./src/pyfuzon/README.md)
+* [:spider: Web server](./src/fuzon-http/README.md)
 
 ## Development
 

@@ -1,0 +1,13 @@
+name: Setup Environment
+description: Shared setup steps
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: 3.x  # or your version
+    - uses: extractions/setup-just@v3
+    - uses: cachix/install-nix-action@v31
+      with:
+        github_access_token: ${{ secrets.GITHUB_TOKEN }}

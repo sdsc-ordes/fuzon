@@ -37,10 +37,8 @@ jobs:
           #- runner: ubuntu-22.04
           #  target: ppc64le
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: 3.x
+      - name: Setup environment
+        uses: ./.github/actions/setup-env
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
@@ -75,10 +73,8 @@ jobs:
           - runner: ubuntu-22.04
             target: armv7
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: 3.x
+      - name: Setup environment
+        uses: ./.github/actions/setup-env
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
@@ -109,10 +105,8 @@ jobs:
           - runner: macos-14
             target: aarch64
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: 3.x
+      - name: Setup environment
+        uses: ./.github/actions/setup-env
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:

@@ -11,7 +11,7 @@
   };
 
   fs = lib.fileset;
-  cargoFile = "${rootSrc}/fuzon/Cargo.toml";
+  cargoFile = "${rootSrc}/src/fuzon/Cargo.toml";
   lockFile = "${rootSrc}/Cargo.lock";
 in
   (rustPlatform.buildRustPackage

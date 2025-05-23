@@ -9,10 +9,10 @@ default:
 # Build all packages.
 build *args:
   cargo build \
-    --manifest-path fuzon/Cargo.toml \
+    --manifest-path src/fuzon/Cargo.toml \
     --release
   maturin build \
-    --manifest-path pyfuzon/Cargo.toml \
+    --manifest-path src/pyfuzon/Cargo.toml \
     --release \
     {{args}}
 

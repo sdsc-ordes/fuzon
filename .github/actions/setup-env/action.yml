@@ -1,5 +1,8 @@
 name: Setup Environment
 description: Shared setup steps
+inputs:
+  github-token:
+    required: true
 runs:
   using: "composite"
   steps:
@@ -9,4 +12,4 @@ runs:
     - uses: extractions/setup-just@v3
     - uses: cachix/install-nix-action@v31
       with:
-        github_access_token: ${{ secrets.GITHUB_TOKEN }}
+        github_access_token: ${{ inputs.github-token }}

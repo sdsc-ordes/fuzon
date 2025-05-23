@@ -6,6 +6,6 @@ root_dir := `git rev-parse --show-toplevel`
 maturin-dev *args:
   cd {{root_dir}} && \
     maturin develop \
-      --manifest-path pyfuzon/Cargo.toml \
+      --manifest-path src/pyfuzon/Cargo.toml \
       --uv \
       {{args}}

@@ -2,8 +2,9 @@
 resolver = "2"
 
 members = [
-    "fuzon", "fuzon-http",
-    "pyfuzon",
+    "src/fuzon",
+    "src/fuzon-http",
+    "src/pyfuzon",
 ]
 
 [workspace.package]

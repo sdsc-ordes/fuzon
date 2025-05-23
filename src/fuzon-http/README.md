@@ -27,29 +27,33 @@ Start the server with:
 ../target/release/fuzon-http --config config/example.json
 ```
 
-Fuzzy matching queries should use `GET /top?collection={collection}&top={top}&query={query}`.
+Once the server is started, it exposes an interactive openapi documentation at `http://localhost:8080` by default. Explore it from your browser!
+
+Fuzzy matching queries should use `GET /codes/top?collection={collection}&num={top}&query={query}`.
 
 ```shell
 # example
-$ curl 'http://localhost:8080/top?collection=cell_type&top=3&query=leukocyte'
+➜ curl -s 'http://localhost:8080/codes/top?collection=cell_type&query=kocyte&num=3' | jq
+
 {
   "codes": [
     {
-      "label":"\"myeloid leukocyte\"",
-      "uri":"<http://purl.obolibrary.org/obo/CL_0000766>",
-      "score":null
+      "label": "leukocyte",
+      "uri": "<http://purl.obolibrary.org/obo/CL_0000738>",
+      "score": null
     },
     {
-      "label":"\"nongranular leukocyte\"",
-      "uri":"<http://purl.obolibrary.org/obo/CL_0002087>",
-      "score":null
+      "label": "myeloid leukocyte",
+      "uri": "<http://purl.obolibrary.org/obo/CL_0000766>",
+      "score": null
     },
     {
-      "label":"\"myeloid leukocyte migration\"",
-      "uri":"<http://purl.obolibrary.org/obo/GO_0097529>",
-      "score":null
+      "label": "leukocyte migration",
+      "uri": "<http://purl.obolibrary.org/obo/GO_0050900>",
+      "score": null
     }
   ]
+}
 }
 ```
 
@@ -57,7 +61,7 @@ To discover available collections, use `GET /list`.
 
 ```shell
 # example
-$ curl 'http://localhost:8080/list'
+$ curl 'http://localhost:8080/collections'
 {
   "collections": ["cell_type","source_material","taxon_id"]
 }
@@ -70,6 +74,7 @@ It is a bash script that continuously reads user-input, retrieves the top 10 bes
 
 ```bash
 #!/bin/bash
+URL=http://localhost:8080
 keys=""
 while IFS= read -r -n1 -s key; do
   # delete chars when backspace is pressed
@@ -81,12 +86,13 @@ while IFS= read -r -n1 -s key; do
   # Clear terminal ouptut
   tput ed
   echo "input: " $keys
-  curl -s "http://localhost:8080/top?query=${keys}&top=10&collection=cell_type" | jq -r '.codes[] | "\(.label) \(.uri)"'
-  # move cursor up 11 lines (1 for input display + 10 codes)
-  tput cuu 11
+  curl -s "${URL}/codes/top?query=${keys}&num=10&collection=cell_type" |
+    jq '{codes: .codes | map({(.label): .uri})} | .codes | add'
+  # move cursor up 13 lines (1 for input display + 10 codes + 2 braces)
+  tput cuu 13
 done
 ```
 
 And here it is in action:
 
-![](../docs/img/fuzon-http.svg)
+![](../../docs/img/fuzon-http.gif)

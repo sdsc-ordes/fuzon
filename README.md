@@ -19,10 +19,12 @@
 
 fuzon helps you quickly find relevant entities (URIs) based on text. It does so by fuzzy matching inputs against the annotations attached to concepts in an RDF graph, allowing for partial matches and typos.
 
-The goal of fuzon is to accelerate exploration of complex ontologies or terminologies to make semantic data more accessible to users. It can be used directly as a command line too, embedded as a webserver, or integrated into other tools as a (rust or python) library.
+The goal of fuzon is to accelerate exploration of complex ontologies or terminologies to make semantic data more accessible to users. It can be used directly as a command line tool, embedded as a webserver, or integrated into other tools as a (rust or python) library.
 
+[![asciicast](./docs/img/fuzon.gif)](https://asciinema.org/a/rg5bfeXmKrXjwNuLCUUnmttpL)
+*click the gif to play on asciinema*
 
-## Principles 
+## Under the Hood
 
 fuzon is built around the [rff](https://github.com/stewart/rff) fuzzy finder which itself uses the [algorithm from fzy](https://github.com/jhawthorn/fzy/blob/master/ALGORITHM.md) a variant of [Needleman-Wunsch](https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm). In addition, fuzon prefetches URI - label pairs by parsing source ontologies (either from a local file or a URL). This allows for highly performant fuzzy searches, with near-instant feedback to use in "auto-complete" interfaces. Previously loaded ontologies are also cached to speed-up subsequent runs.
 

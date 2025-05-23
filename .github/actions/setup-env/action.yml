@@ -13,4 +13,4 @@ runs:
     - uses: cachix/install-nix-action@v31
       with:
         github_access_token: ${{ inputs.github-token }}
-    - runs: just develop-nix
+    - run: just develop-nix

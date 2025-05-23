@@ -89,8 +89,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
-      - name: Instal OpenSSL
+      - name: Install OpenSSL
         run: sudo apt-get update && sudo apt-get install libssl-dev openssl
+      - name: Install toolchain
+        run: rustup toolchain install stable-x86_64-unknown-linux-gnu
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:

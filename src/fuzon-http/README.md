@@ -89,4 +89,4 @@ done
 
 And here it is in action:
 
-![](../docs/img/fuzon-http.gif)
+![](../../docs/img/fuzon-http.gif)

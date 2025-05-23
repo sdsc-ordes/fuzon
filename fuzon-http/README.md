@@ -9,9 +9,14 @@ The server takes a configuration file as input to determine what ontologies to l
 
 ## Installation
 
+fuzon-http can be built with cargo.
+
 ```shell
-cd fuzon-http
+git clone https://github.com/sdsc-ordes/fuzon
+cd fuzon
 cargo build --release
+
+./target/release/fuzon-http --config ./fuzon-http/config/example.json
 ```
 
 ## Usage

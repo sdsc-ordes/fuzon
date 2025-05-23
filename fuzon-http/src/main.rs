@@ -89,7 +89,7 @@ async fn main() -> std::io::Result<()> {
         let spec = Spec {
             info: Info {
                 title: "Fuzon API".to_string(),
-                version: "0.3.0".to_string(),
+                version: "0.4.0".to_string(),
                 description: Some("API for fuzzy terminology matching.".to_string()),
                 ..Default::default()
             },

@@ -1,4 +1,5 @@
 {
+  pkgs,
   rootSrc,
   lib,
   makeRustPlatform,
@@ -29,6 +30,11 @@ in
         inherit lockFile;
       };
 
+      dontInstallDocs = true;
+      dontInstallManpages = true;
+      doInstallCargoArtifacts = false;
+
+
       meta = {
         description = "A CLI tool to fuzzy search ontology terms by their labels.";
         homepage = "https://github.com/sdsc-ordes/fuzon";
@@ -37,5 +43,6 @@ in
       };
     })
   .overrideAttrs (finalAttrs: prevAttrs: {
-    nativeBuildInputs = prevAttrs.nativeBuildInputs ++ [python313];
+    doCheck = false; # disable cargo test (requires network)
+    nativeBuildInputs = prevAttrs.nativeBuildInputs ++ [python313 pkgs.perl];
   })

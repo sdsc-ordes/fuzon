@@ -57,6 +57,7 @@
 
           # Set the rust toolchain from the `rust-toolchain.toml`.
           rustToolchain = pkgs.pkgsBuildHost.rust-bin.fromRustupToolchainFile ../../rust-toolchain.toml;
+          rustToolchainRelease = pkgs.pkgsBuildHost.rust-bin.fromRustupToolchainFile ../configs/rust/toolchain-release.toml;
 
           # Things needed only at compile-time.
           basic-deps = with pkgs; [
@@ -90,8 +91,9 @@
           # The global version for fuzon.
           # This is gonna get tooled later.
           fuzon = pkgs.callPackage ./pkgs/fuzon {
+            inherit pkgs;
             inherit rootSrc;
-            inherit rustToolchain;
+            rustToolchain = rustToolchainRelease;
           };
         in
         rec {

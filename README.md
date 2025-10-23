@@ -68,5 +68,5 @@ just maturin-dev
 ```
 
 ## Copyright
-Copyright © 2025 Swiss Data Science Center (SDSC),[www.datascience.ch](http://www.datascience.ch/), ROR: [ror.org/02hdt9m26](https://ror.org/02hdt9m26). All rights reserved. The SDSC is a Swiss National Research Infrastructure, jointly established and legally represented by the École Polytechnique Fédérale de Lausanne (EPFL) and the Eidgenössische Technische Hochschule Zürich (ETH Zürich) as a société simple. This copyright encompasses all materials, software, documentation, and other content created and developed by the SDSC.
+Copyright © 2025 Swiss Data Science Center (SDSC), [www.datascience.ch](http://www.datascience.ch/), Research Organization Registry ID: [02hdt9m26](https://ror.org/02hdt9m26). All rights reserved. The SDSC is a Swiss National Research Infrastructure, jointly established and legally represented by the École Polytechnique Fédérale de Lausanne (EPFL) and the Eidgenössische Technische Hochschule Zürich (ETH Zürich) as a société simple. This copyright encompasses all materials, software, documentation, and other content created and developed by the SDSC.
 

@@ -1,0 +1,54 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: "fuzon: Fuzzy Entity Search for RDF and Ontologies"
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+
+authors:
+  - given-names: Cyril
+    family-names: Matthey-Doret
+    orcid: 'https://orcid.org/0000-0002-1126-1535'
+    affiliation: Swiss Data Science Center (SDSC)
+  - given-names: Stefan
+    family-names: Milosavljevic
+    email: supermegaiperste@hotmail.com
+    affiliation: Swiss Data Science Center (SDSC)
+  - given-names: Gabriel
+    family-names: Nützi
+    orcid: 'https://orcid.org/0009-0008-8197-2851'
+    affiliation: Swiss Data Science Center (SDSC)
+  - given-names: Robin
+    family-names: Franken
+    orcid: 'https://orcid.org/0009-0008-0143-9118'
+    affiliation: Swiss Data Science Center (SDSC)
+  - given-names: Oksana
+    family-names: Riba Grognuz
+    orcid: 'https://orcid.org/0000-0002-2961-2655'
+    affiliation: Swiss Data Science Center (SDSC)
+repository-code: 'https://github.com/sdsc-ordes/fuzon'
+abstract: >
+  Fuzon is a fast, typo-tolerant entity finder for RDF/OWL ontologies and
+  terminologies. It parses ontologies from local files or URLs, indexes
+  URI–label pairs, and enables high-performance fuzzy matching to quickly
+  surface relevant entities—even with partial matches or misspellings.
+  Fuzon accelerates exploration of complex semantic resources and can be
+  used as a command-line tool, deployed as a web service, or embedded as a
+  library in Rust or Python. Under the hood it builds a persistent on-disk
+  cache for previously loaded ontologies and performs fuzzy search via the
+  rff fuzzy finder (based on fzy’s Needleman–Wunsch variant), delivering
+  near-instant feedback suitable for auto-complete interfaces.
+keywords:
+  - fuzzy search
+  - RDF
+  - ontology
+  - knowledge graph
+  - entity linking
+  - semantic web
+  - Rust
+  - Python
+  - autocomplete
+license: Apache-2.0
